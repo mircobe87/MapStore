@@ -378,7 +378,7 @@ gxp.plugins.nrl.CropData = Ext.extend(gxp.plugins.Tool, {
                     items:[
                         {boxLabel: 'Composite' , name: 'mode', inputValue: 'composite',checked:true},
                         {boxLabel: 'Comparison by Region' , name: 'mode', inputValue: 'compareRegion'},
-						{boxLabel: 'Comparison by Commodity' , name: 'mode', inputValue: 'compareCommodity'},
+						{boxLabel: 'Comparison by Commodity' , name: 'mode', inputValue: 'compareCommodity'}
                     ],
                     listeners: {
                         change: function(c,checked){
@@ -507,7 +507,7 @@ gxp.plugins.nrl.CropData = Ext.extend(gxp.plugins.Tool, {
 					items: [
 						{boxLabel: 'Values' , name: 'outputmode', inputValue: 'abs',checked:true},
 						{boxLabel: 'Anomalies' , name: 'outputmode', inputValue: 'diff'},
-						{boxLabel: 'Anomalies (%)' , name: 'outputmode', inputValue: 'percent'},
+						{boxLabel: 'Anomalies (%)' , name: 'outputmode', inputValue: 'percent'}
 					]
 				},{
                     xtype: 'label',

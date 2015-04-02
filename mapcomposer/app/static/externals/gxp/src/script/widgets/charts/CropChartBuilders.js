@@ -947,7 +947,7 @@ nrl.chartbuilder.crop.compareCommodity = {
 				prod: parseFloat(p.toFixed(2)),
 				yield: parseFloat(yi.toFixed(2))
 			};
-            var row = null;;
+            var row = null;
             //search already existing entries
 			for (var j=0; j< obj.rows.length; j++){
 				if(obj.rows[j].time == feature.properties.year){

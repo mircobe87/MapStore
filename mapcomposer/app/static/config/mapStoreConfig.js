@@ -400,6 +400,22 @@
 
 			"isDummy":false,
 			"actionTarget": "paneltbar"
-	  }
+	  },{
+            "ptype":"nrl_fertilizers",
+            "layerStyle":{
+                "strokeColor":"blue",
+                "strokeWidth":1,
+                "fillOpacity":0.2,
+                "cursor":"pointer"
+            },
+            "dataUrl":"http://84.33.2.75/geoserver/ows",
+            "factorsurl":"http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:agrometdescriptor&max&outputFormat=json",
+            "highChartExportUrl" :"http://84.33.2.75/highcharts-export/",
+            "titleText": "Fertilizers",
+            "outputConfig":{
+                "id":"Fertilizers"
+            },
+            "outputTarget":"nrl"
+      }
 	]
 }

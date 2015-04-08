@@ -407,22 +407,23 @@ nrl.chartbuilder.crop.composite = {
 			//
 			var text = "";
 			var dataTitle = data[r].title.toUpperCase();
-			var commodity = listVar.commodity.toUpperCase();
+			var commodity = listVar.commodity.toUpperCase().replace(/[']/g,'');
             
 			var chartTitle = listVar.chartTitle.split(',')[r];
 			
 			if(dataTitle){				
 				if(dataTitle == "AGGREGATED DATA"){
 					if(aggregatedDataOnly){
-						text += dataTitle + " (Pakistan) - " + commodity;
+						//text += dataTitle + " (Pakistan) - " + commodity;
+                        text += 'Crop Data Analysis: Composite - Pakistan';
 					}else{
-						text += dataTitle + " - " + commodity;
+						text += 'Crop Data Analysis: Composite - REGION';
 					}					
 				}else{
-					text += commodity + " - " + chartTitle;
+					text += 'Crop Data Analysis: Composite - ' + chartTitle;
 				}
 			}
-			text += (customOpt.compositeMode != 'abs' ? '<br /><span style="font-size: 12px;">Anomalies</span>' : '');
+			text += (customOpt.compositeMode != 'abs' ? '<br /><span style="font-size: 12px;">' + commodity + ' Anomalies '+ listVar.toYear + ' - (' + listVar.fromYear + "-"+ listVar.toYear + ')</span>' : '<br />' + commodity);
 			
 			//
 			// AOI Subtitle customization
@@ -450,7 +451,7 @@ nrl.chartbuilder.crop.composite = {
 				chartConfig: {
 					chart: {
 						zoomType: 'x',
-                        spacingBottom: (customOpt.compositeMode == 'abs' ? 158 :96)
+                        spacingBottom: (customOpt.compositeMode == 'abs' ? 196 :128)
 					},
                     exporting: {
                         enabled: true,

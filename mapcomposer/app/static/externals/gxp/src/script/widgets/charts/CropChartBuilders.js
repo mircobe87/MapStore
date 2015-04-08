@@ -1238,7 +1238,7 @@ nrl.chartbuilder.crop.compareCommodity = {
 			// Making Chart Title
 			//
 			
-			var text = "Crop Data Analysis: Comparsion by Commodity<br>";
+			var text = "Crop Data Analysis: Comparison by Commodity<br>";
 			if (listVar.numRegion[r] === undefined){
 				text += data[r].title;
 			}else {
@@ -1292,7 +1292,7 @@ nrl.chartbuilder.crop.compareCommodity = {
 					subtitle: {
                         text: '<span style="font-size:10px;">Source: Pakistan Crop Portal</span><br />'+
                               '<span style="font-size:10px;">Date: '+ listVar.today +'</span><br />'+
-                              '<span style="font-size:10px;">' + (data[r].title == 'Region' ? 'Regions: ' + listVar.chartTitle : 'AOI: ' + aoiSubtitle ) + '</span><br />' +
+                              '<span style="font-size:10px;">' + (data[r].title == 'Region' ? 'Region: ' + listVar.chartTitle : 'AOI: ' + aoiSubtitle ) + '</span><br />' +
                               '<span style="font-size:10px;">Years: '+ listVar.fromYear + "-"+ listVar.toYear+'</span><br />',
                              
                         align: 'left',
@@ -1341,8 +1341,9 @@ nrl.chartbuilder.crop.compareCommodity = {
                       "<ol>" +
                           "<li><p><em> Source: </em>Pakistan Crop Portal</p></li>" +
                           "<li><p><em> Date: </em>"+listVar.today+"</p></li>" +
-                          '<li><p><em> ' + (data[r].title == 'Region' ? 'Regions: </em>' + listVar.chartTitle : 'AOI: </em>' + aoiSubtitle ) + '</p></li>' +
-                          (listVar.commodity ? "<li><p><em> Commodity: </em>" + commoditiesListStr + "</p></li>" :"")+
+                          '<li><p><em> Crop Data Analysis: Comparison by Commodity </p></li>' +
+                          '<li><p><em> ' + (data[r].title == 'Region' ? 'Region: </em>' + listVar.chartTitle : 'AOI: </em>' + aoiSubtitle ) + '</p></li>' +
+                          (listVar.commodity ? '<li><p><em> '+ (commodityList.length > 1 ? 'Commodities' : 'Commodity') +': </em>' + commoditiesListStr + '</p></li>' :'')+
                           "<li><p><em> Years: </em>" + listVar.fromYear + "-" + listVar.toYear + "</p></li>" +
                       "</ol>" +
                       "</div>"
@@ -1373,10 +1374,8 @@ nrl.chartbuilder.crop.compareCommodity = {
             chart.info = chartConfig.plotOptions.series.stacking != 'percent' ? chart.info + avgInfos : chart.info;
 
 			charts.push(chart);
-			console.log(chart.info + '\n');
 		}
 		
-		return charts; 
+		return [charts[charts.length-1]];
 	}
-
 }

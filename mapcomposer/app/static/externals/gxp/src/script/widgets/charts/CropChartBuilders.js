@@ -721,7 +721,7 @@ nrl.chartbuilder.crop.compareRegion = {
                     },
 					title: { // 2 line title (part of issue #104 fixing)
 						useHTML: true,
-						text: '<p>Crop Data Analysis: Comparsion by Region' + '<br>' + listVar.cropTitles[0].toUpperCase() + '</p>',
+						text: '<p>Crop Data Analysis: Comparison by Region' + '<br>' + listVar.cropTitles[0].toUpperCase() + '</p>',
 						margin: 32
 					},
 					subtitle: {
@@ -776,6 +776,7 @@ nrl.chartbuilder.crop.compareRegion = {
                       "<ol>" +
                           "<li><p><em> Source: </em>Pakistan Crop Portal</p></li>" +
                           "<li><p><em> Date: </em>"+listVar.today+"</p></li>" +
+                          "<li><p><em> Crop Data Analysis: Comparison by Region</p></li>" +
                           "<li><p><em> AOI: </em>"+listVar.chartTitle+"</p></li>" +
                           (listVar.commodity ? "<li><p><em> Commodity: </em>" + commoditiesListStr + "</p></li>" :"")+
                           "<li><p><em> Season: </em>" + listVar.season.toUpperCase() + "</p></li>" +

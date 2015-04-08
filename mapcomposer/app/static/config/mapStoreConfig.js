@@ -410,6 +410,7 @@
             },
             "dataUrl":"http://84.33.2.75/geoserver/ows",
             "factorsurl":"http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:agrometdescriptor&max&outputFormat=json",
+            "metadataUrl":"http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:fertilizers_metadata&outputFormat=json",
             "highChartExportUrl" :"http://84.33.2.75/highcharts-export/",
             "titleText": "Fertilizers",
             "outputConfig":{

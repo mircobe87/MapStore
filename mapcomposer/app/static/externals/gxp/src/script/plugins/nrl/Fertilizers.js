@@ -60,7 +60,7 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
             
         },
         district:{
-            typeName: "nrl: district_crop",
+            typeName: "nrl:district_crop",
             queriableAttributes: [
                 "district",
                 "province"
@@ -86,7 +86,7 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
             tpl: "<tpl for=\".\"><div class=\"search-item\"><h3>{name}</span></h3>({province})</div></tpl>"
         },
         province:{
-            typeName: "nrl: province_crop",
+            typeName: "nrl:province_crop",
             recordModel: [
                 {
                     name: "id",
@@ -110,10 +110,55 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
             tpl: "<tpl for=\".\"><div class=\"search-item\"><h3>{name}</span></h3>(Province)</div></tpl>"
         }
     },
+    metadataUrl: "http://84.33.2.24/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:fertilizers_metadata&outputFormat=json",
+    metadataFields: [
+        {name: 'nutrient', mapping: 'properties.nutrient'},
+        {name: 'oldest_nat_y', mapping: 'properties.oldest_nat_y'},
+        {name: 'newest_nat_y', mapping: 'properties.newest_nat_y'},
+        {name: 'oldest_prov_y', mapping: 'properties.oldest_prov_y'},
+        {name: 'newest_prov_y', mapping: 'properties.newest_prov_y'},
+        {name: 'oldest_dist_y', mapping: 'properties.oldest_dist_y'},
+        {name: 'newest_dist_y', mapping: 'properties.newest_dist_y'}
+    ],
      /**
       * api: method[addActions]
       */
      addOutput: function(config) {
+        var loadStoreTrigger = function(){
+            var dataStore = this.output.fertilizers.getStore();
+            for(var i=0; i<dataStore.data.items.length; i++){
+                var dataItem = dataStore.data.items[i].data;
+                var fertMetadata = {
+                    dataNationalYears: {
+                        oldest: undefined,
+                        newest: undefined
+                    },
+                    dataProvincialYears: {
+                        oldest: undefined,
+                        newest: undefined
+                    },
+                    dataDistrictYears: {
+                        oldest: undefined,
+                        newest: undefined
+                    }
+                };
+                var fertLbl;
+                for(var prop in dataItem){
+                    switch(prop){
+                        case 'nutrient': fertLbl = dataItem[prop]; break;
+                        case 'oldest_nat_y': fertMetadata.dataNationalYears.oldest = dataItem[prop]; break;
+                        case 'newest_nat_y': fertMetadata.dataNationalYears.newest = dataItem[prop]; break;
+                        case 'oldest_prov_y': fertMetadata.dataProvincialYears.oldest = dataItem[prop]; break;
+                        case 'newest_prov_y': fertMetadata.dataProvincialYears.newest = dataItem[prop]; break;
+                        case 'oldest_dist_y': fertMetadata.dataDistrictYears.oldest = dataItem[prop]; break;
+                        case 'newest_dist_y': fertMetadata.dataDistrictYears.newest = dataItem[prop]; break;
+                    }
+                }
+                this.output.fertilizers.metadata[fertLbl] = fertMetadata;
+
+            }
+        };
+
         this.comboConfigs.base.url = this.dataUrl;
         var apptarget = this.target;
         var Fertilizers = {
@@ -130,18 +175,108 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                     enableHdMenu: false,
                     hideHeaders: true,
                     hidden: false,
-                    ref: 'commodities',
+                    ref: 'fertilizers',
                     height: 160,
-                    store: {},
+                    store: new Ext.data.JsonStore({
+                        fields: this.metadataFields,
+                        autoLoad: true,
+                        url: this.metadataUrl,
+                        root: 'features',
+                        idProperty:'nutrient',
+                        listeners:{
+                            scope:this,
+                            load:loadStoreTrigger
+                        }
+                    }),
                     columns: {
+                        id: 'nutrient_lbl',
+                        header: 'Fertilizer',
+                        dataIndex: 'nutrient'
                     },
                     allowBlank: false,
-                    name: 'crop',
+                    name: 'fertilizers',
                     anchor: '100%',
                     listeners: {
                         scope: this,
                         selectionchange: function(records){
+                            if(records.length == 0){
+                                // there aren't fertilizers selected.
+                                // all time-options should be disabled.
+                                this.output.fertilizers.setDisabledTimeOptions(true);
+                                // the next selection of a fertilizer, if there aren't
+                                // data then an alert will show.
+                                this.output.noDataAlertWasShown = false;
+                            }else{
+                                // in this case, time-options should be initialized
+                                // with the shorter year renge for which the data
+                                // exist.
+                                // time-options must be enabled.
+                                this.output.fertilizers.setDisabledTimeOptions(false);
+
+                                // computes min & max year given area-option selected and
+                                // fertilizers.
+                                var areaOptions = this.output.aoiFieldSet.gran_type.getValue().inputValue;
+                                var oldest_year, newest_year;
+                                var oldests = [], newests = [];
+                                for(var i=0; i<records.length; i++){
+                                    var record = records[i].data;
+
+                                    switch(areaOptions){
+                                        case 'province': {
+                                            oldests.push(record.oldest_prov_y);
+                                            newests.push(record.newest_prov_y);
+                                        }break;
+                                        case 'district': {
+                                            oldests.push(record.oldest_dist_y);
+                                            newests.push(record.newest_dist_y);
+                                        }break;
+                                        case 'pakistan': {
+                                            oldests.push(record.oldest_nat_y);
+                                            newests.push(record.newest_nat_y);
+                                        }break;
+                                    }
+                                }
+                                oldest_year = Math.min.apply(null, oldests);
+                                newest_year = Math.max.apply(null, newests);
+
+                                if (!oldest_year || !newest_year){
+                                    // there aren't data for this criteria
+                                    this.output.fertilizers.setDisabledTimeOptions(true);
+                                    this.output.showNoDataAlert();
+                                }else{
+                                    // setup store for year combo
+                                    var yearSelector = this.output.yearSelector;
+                                    var years = [];
+                                    for (var y=oldest_year; y<=newest_year; y++)
+                                        years.push([y]);
+
+                                    yearSelector.getStore().removeAll();
+                                    yearSelector.getStore().loadData(years, false);
+                                    yearSelector.setValue(oldest_year);
+
+                                    // setup max and min for year range selector
+                                    var yearRangeSelector = this.output.yearRangeSelector;
+                                    yearRangeSelector.setMinValue(oldest_year);
+                                    yearRangeSelector.setMaxValue(newest_year);
+                                }
+                            }
                         }
+                    },
+                    // it'll contains, for each retilizers, start and end year for
+                    // national data, province data and district data.
+                    metadata: {},
+                    setDisabledTimeOptions: function(boolVal){
+                        var timeWidgets = [
+                            this.ownerCt.timerange,
+                            this.ownerCt.yearRangeSelector,
+                            this.ownerCt.yearSelector,
+                            this.ownerCt.monthRangeSelector
+                        ];
+                        for(var i=0; i<timeWidgets.length; i++)
+                            if (boolVal)
+                                timeWidgets[i].disable();
+                            else
+                                timeWidgets[i].enable();
                     }
                 },{ // TIME RANGE  radiogroup ------------------------------
                     fieldLabel: 'Time Range',
@@ -151,6 +286,7 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                     ref: 'timerange',
                     title: this.outputTypeText,
                     defaultType: 'radio',
+                    disabled: true,
                     columns: 2,
                     items:[
                         {boxLabel: 'Annual' , name: 'timerange', inputValue: 'annual', checked: true},
@@ -192,16 +328,19 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                     disabled: false,
                     xtype: 'singleyearcombobox',
                     anchor: '100%',
-                    ref: 'yearSelector'
+                    ref: 'yearSelector',
+                    disabled: true
                 },{ // MONTH range selector --------------------------------
                     ref: 'monthRangeSelector',
                     xtype: 'monthyearrangeselector',
                     anchor: '100%',
-                    noCrossYear: true
+                    noCrossYear: true,
+                    disabled: true
                 },{ // YEAR range selector ---------------------------------
                     ref: 'yearRangeSelector',
                     xtype: 'yearrangeselector',
-                    anchor: '100%'
+                    anchor: '100%',
+                    disabled: true
                 },{ // AOI selector ----------------------------------------
                     xtype: 'nrl_aoifieldset',
                     name: 'region_list',
@@ -213,8 +352,8 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                     areaFilter: this.areaFilter, 
                     hilightLayerName: this.hilightLayerName,
                     layers:{
-                        district: 'nrl: district_boundary',
-                        province: 'nrl: province_boundary'
+                        district: 'nrl:district_boundary',
+                        province: 'nrl:province_boundary'
                     }
                 }
             ],
@@ -235,7 +374,14 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                     form: this,
                     disabled: true
                 }
-            ]
+            ],
+            noDataAlertWasShown: false,
+            showNoDataAlert: function(){
+                if (!this.noDataAlertWasShown){
+                    Ext.MessageBox.alert('No data available', 'There are not data available for this search criteria.');
+                    this.noDataAlertWasShown = true;
+                }
+            }
         };
 
         config = Ext.apply(Fertilizers, config || {});

@@ -239,7 +239,7 @@ nrl.chartbuilder.agromet.composite = {
                             Ext.each(this.points, function(i, point) {
                                 var uom = (listVar.compositevalues == 'anomalies' && listVar.anomaliesoutput == 'rel') ? '%' : i.series.options.unit;
                                 s += '<br/><span style="color:'+i.series.color+'">' +  i.series.name + (listVar.compositevalues == 'avg' ? ' (avg)' : '') + ': </span>'+
-                                    '<span style="font-size:12px;">'+ i.y.toFixed(2) + " " + uom + '</span>';
+                                    '<span style="font-size:12px;">'+ (i.y ? i.y.toFixed(2) : 'n/a') + " " + uom + '</span>';
                             });                            
                             return s;
                         },

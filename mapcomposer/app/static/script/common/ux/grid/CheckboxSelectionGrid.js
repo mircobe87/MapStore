@@ -40,6 +40,9 @@ Ext.ux.grid.CheckboxSelectionGrid = Ext.extend(Ext.grid.GridPanel,{
             
             this.fireEvent('selectionchange',sm.getSelections());
         },this);
+        this.getSelections = function(){
+            return this.selModel.getSelections();
+        }
         return Ext.ux.grid.CheckboxSelectionGrid.superclass.initComponent.apply(this, arguments);
     
     }

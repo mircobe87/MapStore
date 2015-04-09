@@ -200,67 +200,8 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                     listeners: {
                         scope: this,
                         selectionchange: function(records){
-                            if(records.length == 0){
-                                // there aren't fertilizers selected.
-                                // all time-options should be disabled.
-                                this.output.fertilizers.setDisabledTimeOptions(true);
-                                // the next selection of a fertilizer, if there aren't
-                                // data then an alert will show.
-                                this.output.noDataAlertWasShown = false;
-                            }else{
-                                // in this case, time-options should be initialized
-                                // with the shorter year renge for which the data
-                                // exist.
-                                // time-options must be enabled.
-                                this.output.fertilizers.setDisabledTimeOptions(false);
-
-                                // computes min & max year given area-option selected and
-                                // fertilizers.
-                                var areaOptions = this.output.aoiFieldSet.gran_type.getValue().inputValue;
-                                var oldest_year, newest_year;
-                                var oldests = [], newests = [];
-                                for(var i=0; i<records.length; i++){
-                                    var record = records[i].data;
-
-                                    switch(areaOptions){
-                                        case 'province': {
-                                            oldests.push(record.oldest_prov_y);
-                                            newests.push(record.newest_prov_y);
-                                        }break;
-                                        case 'district': {
-                                            oldests.push(record.oldest_dist_y);
-                                            newests.push(record.newest_dist_y);
-                                        }break;
-                                        case 'pakistan': {
-                                            oldests.push(record.oldest_nat_y);
-                                            newests.push(record.newest_nat_y);
-                                        }break;
-                                    }
-                                }
-                                oldest_year = Math.min.apply(null, oldests);
-                                newest_year = Math.max.apply(null, newests);
-
-                                if (!oldest_year || !newest_year){
-                                    // there aren't data for this criteria
-                                    this.output.fertilizers.setDisabledTimeOptions(true);
-                                    this.output.showNoDataAlert();
-                                }else{
-                                    // setup store for year combo
-                                    var yearSelector = this.output.yearSelector;
-                                    var years = [];
-                                    for (var y=oldest_year; y<=newest_year; y++)
-                                        years.push([y]);
-
-                                    yearSelector.getStore().removeAll();
-                                    yearSelector.getStore().loadData(years, false);
-                                    yearSelector.setValue(oldest_year);
-
-                                    // setup max and min for year range selector
-                                    var yearRangeSelector = this.output.yearRangeSelector;
-                                    yearRangeSelector.setMinValue(oldest_year);
-                                    yearRangeSelector.setMaxValue(newest_year);
-                                }
-                            }
+                            var granType = this.output.aoiFieldSet.gran_type.getValue().inputValue;
+                            this.output.enableOptionsIfDataExists(records, granType);
                         }
                     },
                     // it'll contains, for each retilizers, start and end year for
@@ -322,7 +263,6 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                     // sets the initial state for the components
                     // used to select time options.
                     initTimeSelection: function(){
-                        console.log('init.......');
                         this.setAnnualMode();
                     }
                 },{ // YEAR compobox ---------------------------------------
@@ -356,6 +296,14 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                     layers:{
                         district: 'nrl:district_boundary',
                         province: 'nrl:province_boundary'
+                    },
+                    listeners: {
+                        grantypeChange: function(itemSelected){
+                            var granType = itemSelected.inputValue;
+                            var records = this.ownerCt.fertilizers.getSelections();
+
+                            this.ownerCt.enableOptionsIfDataExists(records, granType);
+                        }
                     }
                 }
             ],
@@ -388,6 +336,68 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                 if (!this.noDataAlertWasShown){
                     Ext.MessageBox.alert('No data available', 'There are not data available for this search criteria.');
                     this.noDataAlertWasShown = true;
+                }
+            },
+            enableOptionsIfDataExists: function(records, granType){
+                if(records.length == 0){
+                    // there aren't fertilizers selected.
+                    // all time-options should be disabled.
+                    this.fertilizers.setDisabledTimeOptions(true);
+                    // the next selection of a fertilizer, if there aren't
+                    // data then an alert will show.
+                    this.noDataAlertWasShown = false;
+                }else{
+                    // in this case, time-options should be initialized
+                    // with the shorter year renge for which the data
+                    // exist.
+                    // time-options must be enabled.
+                    this.fertilizers.setDisabledTimeOptions(false);
+
+                    // computes min & max year given the area-option selected and
+                    // the fertilizers.
+                    var oldest_year, newest_year;
+                    var oldests = [], newests = [];
+                    for(var i=0; i<records.length; i++){
+                        var record = records[i].data;
+
+                        switch(granType){
+                            case 'province': {
+                                oldests.push(record.oldest_prov_y);
+                                newests.push(record.newest_prov_y);
+                            }break;
+                            case 'district': {
+                                oldests.push(record.oldest_dist_y);
+                                newests.push(record.newest_dist_y);
+                            }break;
+                            case 'pakistan': {
+                                oldests.push(record.oldest_nat_y);
+                                newests.push(record.newest_nat_y);
+                            }break;
+                        }
+                    }
+                    oldest_year = Math.min.apply(null, oldests);
+                    newest_year = Math.max.apply(null, newests);
+
+                    if (!oldest_year || !newest_year){
+                        // there aren't data for this criteria
+                        this.fertilizers.setDisabledTimeOptions(true);
+                        this.showNoDataAlert();
+                    }else{
+                        // setup store for year combo
+                        var yearSelector = this.yearSelector;
+                        var years = [];
+                        for (var y=oldest_year; y<=newest_year; y++)
+                            years.push([y]);
+
+                        yearSelector.getStore().removeAll();
+                        yearSelector.getStore().loadData(years, false);
+                        yearSelector.setValue(oldest_year);
+
+                        // setup max and min for year range selector
+                        var yearRangeSelector = this.yearRangeSelector;
+                        yearRangeSelector.setMinValue(oldest_year);
+                        yearRangeSelector.setMaxValue(newest_year);
+                    }
                 }
             }
         };

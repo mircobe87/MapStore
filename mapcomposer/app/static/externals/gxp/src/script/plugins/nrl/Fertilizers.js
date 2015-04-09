@@ -162,6 +162,7 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
         this.comboConfigs.base.url = this.dataUrl;
         var apptarget = this.target;
         var Fertilizers = {
+            isRendered: false,
             xtype: 'form',
             title: this.titleText,
             layout: "form",
@@ -321,6 +322,7 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                     // sets the initial state for the components
                     // used to select time options.
                     initTimeSelection: function(){
+                        console.log('init.......');
                         this.setAnnualMode();
                     }
                 },{ // YEAR compobox ---------------------------------------
@@ -358,11 +360,17 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                 }
             ],
             listeners: {
-                // when all the items of form are arranged
-                // it sets the inital configurations for all
-                afterlayout: function(f){
-                    f.timerange.initTimeSelection();
-                }
+                                                    ////////
+                afterlayout: function(f){                 // this couple of handler is used with the
+                    if (f.isRendered){                    // varible 'isRendered' to execute 'initTimeSelection()'
+                        f.isRendered = false;             // only one time at the beginning, when the form is show
+                        f.timerange.initTimeSelection();  // for the first time.
+                    }                                     //
+                },                                        //
+                afterRender: function(f){                 //
+                    f.isRendered = true;                  //
+                }                                         //
+                                                    ////////
             },
             buttons:[
                 {

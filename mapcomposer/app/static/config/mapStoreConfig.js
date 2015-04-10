@@ -408,6 +408,7 @@
                 "fillOpacity":0.2,
                 "cursor":"pointer"
             },
+            "typeNameData":"nrl:fertilizer_data",
             "dataUrl":"http://84.33.2.75/geoserver/ows",
             "factorsurl":"http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:agrometdescriptor&max&outputFormat=json",
             "metadataUrl":"http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:fertilizers_metadata&outputFormat=json",

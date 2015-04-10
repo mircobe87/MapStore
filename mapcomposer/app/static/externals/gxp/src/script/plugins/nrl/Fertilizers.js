@@ -323,7 +323,7 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
             buttons:[
                 {
                     url: this.dataUrl,
-                    xtype: 'gxp_nrlCropDataButton',
+                    xtype: 'gxp_nrlFertilizerButton',
                     typeName: this.typeNameData,
                     ref: '../submitButton',
                     target: this,
@@ -346,12 +346,14 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                     // the next selection of a fertilizer, if there aren't
                     // data then an alert will show.
                     this.noDataAlertWasShown = false;
+                    this.submitButton.disable();
                 }else{
                     // in this case, time-options should be initialized
                     // with the shorter year renge for which the data
                     // exist.
                     // time-options must be enabled.
                     this.fertilizers.setDisabledTimeOptions(false);
+                    this.submitButton.enable();
 
                     // computes min & max year given the area-option selected and
                     // the fertilizers.
@@ -381,6 +383,7 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                     if (!oldest_year || !newest_year){
                         // there aren't data for this criteria
                         this.fertilizers.setDisabledTimeOptions(true);
+                        this.submitButton.disable();
                         this.showNoDataAlert();
                     }else{
                         // setup store for year combo

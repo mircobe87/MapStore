@@ -182,5 +182,31 @@ nrl.chartbuilder.util = {
             return word.charAt(0).toUpperCase() + word.substr(1).toLowerCase();
         }
         return str.replace(/\w\S*/g, toUpperCamelCase);
+    },
+    /**
+     * Convert month number into month name.
+     *
+     * ``Number``  n        month number (1-12)
+     * ``Boolean`` longForm if true then the function returns the complete name of the month
+     *                      if false then the funcion returns the 3-chars name of the month
+     * return: ``String`` the name of the month
+     */
+    numberToMonthName: function(n, longForm){
+        var shortMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        var longMonths = [
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'October',
+            'November',
+            'December'
+        ];
+        return (!longForm ? shortMonths[n] : longMonths[n]);
     }
-}
+};

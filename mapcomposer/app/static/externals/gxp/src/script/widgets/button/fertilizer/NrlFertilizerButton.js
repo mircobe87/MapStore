@@ -153,7 +153,8 @@ gxp.widgets.button.NrlFertilizerButton = Ext.extend(Ext.SplitButton, {
         };
         return fieldSet;
     },
-    chartOpt: {},
+    queryOptions: {},
+    chartOpt: undefined,
     menu: {
         items: [
             {
@@ -162,40 +163,15 @@ gxp.widgets.button.NrlFertilizerButton = Ext.extend(Ext.SplitButton, {
                 text: 'Options',
                 handler:function(option){
                     //get mode
-                    this.refOwner.chartOpt = this.refOwner.getChartOpt();
-                    /*
                     var mainButton = this.refOwner;
+                    this.refOwner.chartOpt = this.refOwner.chartOpt || this.refOwner.getChartOpt(mainButton.refOwner);
 
-                    var selectedNutrients = mainButton.form.output.fertilizers.getSelections();
-                    var colorRGB = nrl.chartbuilder.util.randomColorsRGB(selectedNutrients.length);
-                    var colorHEX = nrl.chartbuilder.util.randomColorsHEX(selectedNutrients.length);
-                    var options = mainButton.chartOpt;
-
-                    for(var i = 0; i < selectedNutrients.length; i++){
-                        var selNut = selectedNutrients[i];
-                        options.series[selNut.data.nutrient] = {
-                            name: selNut.data.nutrient,
-                            color: colorHEX[i],
-                            lcolor: 'rgb(' + colorRGB[i] + ')',
-                            type: 'column',
-                            dataIndex: selNut.data.nutrient,
-                            unit: '(000 tons)'
-                        }
-                    }
-                    */
                     var stackedCharts = mainButton.stackedCharts;
                     var fieldSetList = [];
 
-                    for(var nutrient in options.series)
+                    for(var nutrient in this.refOwner.chartOpt.series)
                         fieldSetList.push(mainButton.createOptionsFildset(nutrient, this.refOwner.chartOpt.series[nutrient], nutrient));
                     fieldSetList.push(mainButton.createStackChartsOptions(stackedCharts));
-/*
-                    var form = mainButton.form.output.getForm();
-                    var data = form.getValues();
-                    var mode = data.mode;
-                    var options = mainButton.chartOpt;
-                    var optionsCompare = mode == 'compareRegion' ? mainButton.chartOptCompare : mainButton.optionsCompareCommodities;
-*/
 
                     var win = new Ext.Window({
                         iconCls:'ic_wrench',
@@ -219,8 +195,6 @@ gxp.widgets.button.NrlFertilizerButton = Ext.extend(Ext.SplitButton, {
                             layout:'form',
                             items: fieldSetList
                         }
-
-
                     });
                     win.show();
                 }
@@ -242,6 +216,7 @@ gxp.widgets.button.NrlFertilizerButton = Ext.extend(Ext.SplitButton, {
 
             // gets the options used in the query for grouping data
             var grouping_opt = (form.timerange.getValue().inputValue == 'monthly' ? 'month_num' : 'year');
+            form.submitButton.queryOptions.timerange = form.timerange.getValue().inputValue;
 
             // gets the min & max year
             // gets max & min month
@@ -261,9 +236,14 @@ gxp.widgets.button.NrlFertilizerButton = Ext.extend(Ext.SplitButton, {
                       to_month_num = form.monthRangeSelector.slider.getValues()[1];
                 }break;
             }
+            form.submitButton.queryOptions.from_year = from_year;
+            form.submitButton.queryOptions.to_year = to_year;
+            form.submitButton.queryOptions.from_month = from_month_num;
+            form.submitButton.queryOptions.to_month = to_month_num;
 
             // gets the gran type parameter
             var gran_type = form.aoiFieldSet.gran_type.getValue().inputValue;
+            form.submitButton.queryOptions.gran_type = gran_type;
 
             // gets the gran type parameter as string
             var gran_type_str = '\'' + gran_type + '\'';
@@ -271,46 +251,31 @@ gxp.widgets.button.NrlFertilizerButton = Ext.extend(Ext.SplitButton, {
             // gets the list of selected regions
             var region_list = form.aoiFieldSet.selectedRegions.getValue();
 
-            return 'grouping_opt:'   + grouping_opt   + ';' +
-                   'from_year:'      + from_year      + ';' +
-                   'to_year:'        + to_year        + ';' +
-                   'from_month_num:' + from_month_num + ';' +
-                   'to_month_num:'   + to_month_num   + ';' +
-                   'nutrient_list:'  + nutrient_list  + ';' +
-                   'region_list:'    + region_list    + ';' +
-                   'gran_type_str:'  + gran_type_str  + ';' +
-                   'gran_type:'      + gran_type      + ';' ;
+            if (gran_type == 'pakistan'){
+                return 'grouping_opt:'   + grouping_opt   + ';' +
+                       'from_year:'      + from_year      + ';' +
+                       'to_year:'        + to_year        + ';' +
+                       'from_month_num:' + from_month_num + ';' +
+                       'to_month_num:'   + to_month_num   + ';' +
+                       'nutrient_list:'  + nutrient_list  + ';' +
+                       'region_list:'    + "''"           + ';' +
+                       'gran_type_str:'  + gran_type_str  + ';' +
+                       'gran_type:'      + 'province'     + ';' ;
+            }else{
+                return 'grouping_opt:'   + grouping_opt   + ';' +
+                       'from_year:'      + from_year      + ';' +
+                       'to_year:'        + to_year        + ';' +
+                       'from_month_num:' + from_month_num + ';' +
+                       'to_month_num:'   + to_month_num   + ';' +
+                       'nutrient_list:'  + nutrient_list  + ';' +
+                       'region_list:'    + region_list    + ';' +
+                       'gran_type_str:'  + gran_type_str  + ';' +
+                       'gran_type:'      + gran_type      + ';' ;
+            }
         };
 
-        var getChartOpt = function(form){
-
-            var selectedNutrients = form.fertilizers.getSelections();
-            var colorRGB = nrl.chartbuilder.util.randomColorsRGB(selectedNutrients.length);
-            var colorHEX = nrl.chartbuilder.util.randomColorsHEX(selectedNutrients.length);
-            var options = form.submitButton.chartOpt;
-            var ret = {
-                height: 500,
-                series: {}
-            }
-
-            for(var i = 0; i < selectedNutrients.length; i++){
-                var selNut = selectedNutrients[i];
-                ret.series[selNut.data.nutrient] = {
-                    name: selNut.data.nutrient,
-                    data:[],
-                    color: colorHEX[i],
-                    lcolor: 'rgb(' + colorRGB[i] + ')',
-                    type: 'column',
-                    dataIndex: selNut.data.nutrient,
-                    unit: '(000 tons)'
-                }
-            }
-
-            return ret;
-        }
-
         var viewparams = getViewParams(this.refOwner);
-        this.chartOpt = getChartOpt(this.refOwner);
+        this.chartOpt = this.chartOpt || this.getChartOpt(this.refOwner);
 
         Ext.Ajax.request({
             scope:this,
@@ -344,12 +309,9 @@ gxp.widgets.button.NrlFertilizerButton = Ext.extend(Ext.SplitButton, {
                 var gran_type = this.refOwner.aoiFieldSet.gran_type.getValue().inputValue;
 
                 var data = nrl.chartbuilder.fertilizer.getData(jsonData, gran_type);
-                var charts = nrl.chartbuilder.fertilizer.makeChart(data, this.chartOpt, customOpt);
+                var charts = nrl.chartbuilder.fertilizer.makeChart(data, this.chartOpt, customOpt, this.queryOptions);
                 var wins = gxp.WindowManagerPanel.Util.createChartWindows(charts,undefined);
                 gxp.WindowManagerPanel.Util.showInWindowManager(wins,this.tabPanel,this.targetTab, this.windowManagerOptions);
-
-                console.log(data);
-                console.log(this.chartOpt);
             },
             failure: function(result, request){
                 console.log('FAIL!');
@@ -357,6 +319,32 @@ gxp.widgets.button.NrlFertilizerButton = Ext.extend(Ext.SplitButton, {
                 console.log(request);
             }
         });
+    },
+    getChartOpt: function(form){
+
+        var selectedNutrients = form.fertilizers.getSelections();
+        var colorRGB = nrl.chartbuilder.util.randomColorsRGB(selectedNutrients.length);
+        var colorHEX = nrl.chartbuilder.util.randomColorsHEX(selectedNutrients.length);
+        var options = form.submitButton.chartOpt;
+        var ret = {
+            height: 500,
+            series: {}
+        }
+
+        for(var i = 0; i < selectedNutrients.length; i++){
+            var selNut = selectedNutrients[i];
+            ret.series[selNut.data.nutrient] = {
+                name: selNut.data.nutrient,
+                data:[],
+                color: colorHEX[i],
+                lcolor: 'rgb(' + colorRGB[i] + ')',
+                type: 'column',
+                dataIndex: selNut.data.nutrient,
+                unit: '(000 tons)'
+            }
+        }
+
+        return ret;
     }
 });
 

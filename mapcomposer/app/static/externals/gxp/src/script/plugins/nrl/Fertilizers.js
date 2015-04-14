@@ -303,6 +303,12 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                             var records = this.ownerCt.fertilizers.getSelections();
 
                             this.ownerCt.enableOptionsIfDataExists(records, granType);
+                        },
+                        regionsChange: function(s){
+                            var granType = this.gran_type.getValue().inputValue;
+                            var records = this.ownerCt.fertilizers.getSelections();
+
+                            this.ownerCt.enableOptionsIfDataExists(records, granType);
                         }
                     }
                 }
@@ -353,7 +359,10 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                     // exist.
                     // time-options must be enabled.
                     this.fertilizers.setDisabledTimeOptions(false);
-                    this.submitButton.enable();
+                    if (this.aoiFieldSet.selectedRegions.getValue().length != 0 || granType == 'pakistan')
+                        this.submitButton.enable();
+                    else
+                        this.submitButton.disable();
 
                     // computes min & max year given the area-option selected and
                     // the fertilizers.
@@ -364,21 +373,21 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
 
                         switch(granType){
                             case 'province': {
-                                oldests.push(record.oldest_prov_y);
-                                newests.push(record.newest_prov_y);
+                                if (record.oldest_prov_y) oldests.push(record.oldest_prov_y);
+                                if (record.newest_prov_y) newests.push(record.newest_prov_y);
                             }break;
                             case 'district': {
-                                oldests.push(record.oldest_dist_y);
-                                newests.push(record.newest_dist_y);
+                                if (record.oldest_dist_y) oldests.push(record.oldest_dist_y);
+                                if (record.newest_dist_y) newests.push(record.newest_dist_y);
                             }break;
                             case 'pakistan': {
-                                oldests.push(record.oldest_nat_y);
-                                newests.push(record.newest_nat_y);
+                                if (record.oldest_nat_y) oldests.push(record.oldest_nat_y);
+                                if (record.newest_nat_y) newests.push(record.newest_nat_y);
                             }break;
                         }
                     }
-                    oldest_year = Math.min.apply(null, oldests);
-                    newest_year = Math.max.apply(null, newests);
+                    oldest_year = oldests.length ? Math.min.apply(null, oldests) : undefined;
+                    newest_year = newests.length ? Math.max.apply(null, newests) : undefined;
 
                     if (!oldest_year || !newest_year){
                         // there aren't data for this criteria

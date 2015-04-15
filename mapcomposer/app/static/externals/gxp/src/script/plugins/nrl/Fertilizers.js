@@ -42,7 +42,7 @@ Ext.namespace("gxp.plugins.nrl");
  */
 gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
 
-    /** api: ptype = gxp_addgroup */
+    /** api: ptype = nrl_fertilizers */
     titleText: 'Fertilizers',
     outputTypeText: 'Output Type',
     ptype: "nrl_fertilizers",
@@ -57,7 +57,7 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
             ref: 'singleSelector',
             displayField: "name",
             pageSize: 10
-            
+
         },
         district:{
             typeName: "nrl:district_crop",
@@ -123,7 +123,7 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
      /**
       * api: method[addActions]
       */
-     addOutput: function(config) {
+    addOutput: function(config) {
         var loadStoreTrigger = function(){
             var dataStore = this.output.fertilizers.getStore();
             for(var i=0; i<dataStore.data.items.length; i++){
@@ -291,7 +291,7 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                     anchor: '100%',
                     target: this.target,
                     comboConfigs: this.comboConfigs,
-                    areaFilter: this.areaFilter, 
+                    areaFilter: this.areaFilter,
                     hilightLayerName: this.hilightLayerName,
                     layers:{
                         district: 'nrl:district_boundary',
@@ -409,6 +409,8 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                         var yearRangeSelector = this.yearRangeSelector;
                         var currentMax = yearRangeSelector.endValue.getValue();
                         var currentMin = yearRangeSelector.startValue.getValue();
+
+                        // avoids validation error
                         if (oldest_year > currentMin){
                             yearRangeSelector.setMaxValue(newest_year);
                             yearRangeSelector.setMinValue(oldest_year);
@@ -424,8 +426,26 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
         config = Ext.apply(Fertilizers, config || {});
         this.output = gxp.plugins.nrl.Fertilizers.superclass.addOutput.call(this, config);
 
-         return this.output;
-     }
+        //hide selection layer on tab change
+        this.output.on('beforehide',function(){
+            var button = this.output.aoiFieldSet.AreaSelector.selectButton;
+            button.toggle(false);
+            var lyr = button.hilightLayer;
+            if(!lyr) {return;}
+            lyr.setVisibility(false);
+
+        },this);
+        this.output.on('show',function(){
+            var button = this.output.aoiFieldSet.AreaSelector.selectButton;
+
+            var lyr = button.hilightLayer;
+            if(!lyr) {return;}
+            lyr.setVisibility(true);
+
+        },this);
+
+        return this.output;
+    }
 
  });
 

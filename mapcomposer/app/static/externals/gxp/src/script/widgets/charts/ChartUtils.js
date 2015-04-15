@@ -31,7 +31,7 @@ nrl.chartbuilder.util = {
 
     },
     randomColorsRGB: function(total){
-        var i = 360 / (total - 1); // distribute the colors evenly on the hue range
+        var i = 360 / (total); // distribute the colors evenly on the hue range
         var r = []; // hold the generated colors
         var hsvToRgb = function(h,s,v){
             var rgb= Ext.ux.ColorPicker.prototype.hsvToRgb(h,s,v);
@@ -39,12 +39,12 @@ nrl.chartbuilder.util = {
         }
         for (var x=0; x<total; x++)
         {
-            r.push(hsvToRgb(i * x, 0.57, 0.63)); // you can also alternate the saturation and value for even more contrast between the colors
+            r.push(hsvToRgb(i * x, 0.5, 0.71)); // you can also alternate the saturation and value for even more contrast between the colors
         }
         return r;
     },
     randomColorsHEX: function(total){
-        var i = 360 / (total - 1); // distribute the colors evenly on the hue range
+        var i = 360 / (total); // distribute the colors evenly on the hue range
         var r = []; // hold the generated colors
         var hsvToRgb = function(h,s,v){
             var rgb= Ext.ux.ColorPicker.prototype.hsvToRgb(h,s,v);
@@ -52,7 +52,7 @@ nrl.chartbuilder.util = {
         }
         for (var x=0; x<total; x++)
         {
-            r.push(hsvToRgb(i * x, 0.57, 0.63)); // you can also alternate the saturation and value for even more contrast between the colors
+            r.push(hsvToRgb(i * x, 0.5, 0.71)); // you can also alternate the saturation and value for even more contrast between the colors
         }
         return r;
     },

@@ -164,7 +164,7 @@ gxp.widgets.button.NrlFertilizerButton = Ext.extend(Ext.SplitButton, {
                 handler:function(option){
                     //get mode
                     var mainButton = this.refOwner;
-                    this.refOwner.chartOpt = this.refOwner.chartOpt || this.refOwner.getChartOpt(mainButton.refOwner);
+                    this.refOwner.chartOpt = this.refOwner.getChartOpt(mainButton.refOwner);
 
                     var stackedCharts = mainButton.stackedCharts;
                     var fieldSetList = [];
@@ -232,8 +232,8 @@ gxp.widgets.button.NrlFertilizerButton = Ext.extend(Ext.SplitButton, {
                 case 'month_num': {
                     from_year = form.yearSelector.getValue();
                       to_year = form.yearSelector.getValue();
-                    from_month_num = form.monthRangeSelector.slider.getValues()[0];
-                      to_month_num = form.monthRangeSelector.slider.getValues()[1];
+                    from_month_num = form.monthRangeSelector.slider.getValues()[0]+1;
+                      to_month_num = form.monthRangeSelector.slider.getValues()[1]+1;
                 }break;
             }
             form.submitButton.queryOptions.from_year = from_year;
@@ -275,7 +275,7 @@ gxp.widgets.button.NrlFertilizerButton = Ext.extend(Ext.SplitButton, {
         };
 
         var viewparams = getViewParams(this.refOwner);
-        this.chartOpt = this.chartOpt || this.getChartOpt(this.refOwner);
+        this.chartOpt = this.getChartOpt(this.refOwner);
 
         Ext.Ajax.request({
             scope:this,
@@ -341,6 +341,15 @@ gxp.widgets.button.NrlFertilizerButton = Ext.extend(Ext.SplitButton, {
                 type: 'column',
                 dataIndex: selNut.data.nutrient,
                 unit: '(000 tons)'
+            }
+            if (options != undefined){
+                if (options.series[selNut.data.nutrient] != undefined){
+                    Ext.apply(ret.series[selNut.data.nutrient], {
+                        color: options.series[selNut.data.nutrient].color,
+                        lcolor: options.series[selNut.data.nutrient].lcolor,
+                        type: options.series[selNut.data.nutrient].type,
+                    });
+                }
             }
         }
 

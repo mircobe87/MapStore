@@ -353,7 +353,7 @@
 	  },{
             "ptype":"nrl_fertilizers",
             "layerStyle":{
-                "strokeColor":"blue",
+                "strokeColor":"purple",
                 "strokeWidth":1,
                 "fillOpacity":0.2,
                 "cursor":"pointer"

@@ -207,6 +207,6 @@ nrl.chartbuilder.util = {
             'November',
             'December'
         ];
-        return (!longForm ? shortMonths[n] : longMonths[n]);
+        return (!longForm ? shortMonths[n-1] : longMonths[n-1]);
     }
 };

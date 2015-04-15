@@ -340,7 +340,7 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
             noDataAlertWasShown: false,
             showNoDataAlert: function(){
                 if (!this.noDataAlertWasShown){
-                    Ext.MessageBox.alert('No data available', 'There are not data available for this search criteria.');
+                    //Ext.MessageBox.alert('No data available', 'There are not data available for this search criteria.');
                     this.noDataAlertWasShown = true;
                 }
             },
@@ -407,8 +407,15 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
 
                         // setup max and min for year range selector
                         var yearRangeSelector = this.yearRangeSelector;
-                        yearRangeSelector.setMinValue(oldest_year);
-                        yearRangeSelector.setMaxValue(newest_year);
+                        var currentMax = yearRangeSelector.endValue.getValue();
+                        var currentMin = yearRangeSelector.startValue.getValue();
+                        if (oldest_year > currentMin){
+                            yearRangeSelector.setMaxValue(newest_year);
+                            yearRangeSelector.setMinValue(oldest_year);
+                        }else{
+                            yearRangeSelector.setMinValue(oldest_year);
+                            yearRangeSelector.setMaxValue(newest_year);
+                        }
                     }
                 }
             }

@@ -221,6 +221,9 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                                 timeWidgets[i].enable();
                     }
                 },{ // TIME RANGE  radiogroup ------------------------------
+                    style: {
+                        marginTop: '6px'
+                    },
                     fieldLabel: 'Time Range',
                     xtype: 'radiogroup',
                     anchor: '100%',
@@ -264,6 +267,7 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                     // used to select time options.
                     initTimeSelection: function(){
                         this.setAnnualMode();
+                        this.ownerCt.setShowNoDataInfo(true);
                     }
                 },{ // YEAR compobox ---------------------------------------
                     name: 'year',
@@ -283,7 +287,28 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                     xtype: 'yearrangeselector',
                     anchor: '100%',
                     disabled: true
+                },{ // INFO fieldset ---------------------------------------
+                    style: {
+                        marginTop: '12px',
+                    },
+                    xtype: 'fieldset',
+                    ref: 'infofieldset',
+                    anchor: '100%',
+                    items: [
+                        {
+                            xtype: 'label',
+                            html: 'ok',
+                            ref: 'lbl'
+                        }
+                    ],
+                    setInfo: function(html){
+                        this.lbl.setText(html, false);
+                    },
+                    hidden: true
                 },{ // AOI selector ----------------------------------------
+                    style: {
+                        marginTop: '6px'
+                    },
                     xtype: 'nrl_aoifieldset',
                     name: 'region_list',
                     ref: 'aoiFieldSet',
@@ -344,6 +369,26 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                     this.noDataAlertWasShown = true;
                 }
             },
+            setShowNoDataInfo: function(b){
+                if (b){
+                    var gran_type = this.aoiFieldSet.gran_type.getValue().inputValue;
+                    var selectedFert = this.fertilizers.getSelections();
+                    var fertList = [];
+                    for(var i=0; i<selectedFert.length; i++){
+                        fertList.push('<b>' + selectedFert[i].data.nutrient + '</b>');
+                    }
+                    var msg = "";
+                    if (fertList.length > 0)
+                        msg = 'There are not <b>' + (gran_type == 'pakistan' ? 'national' : gran_type) + '</b> data for the fertilizer' + (fertList.length > 1 ? 's' : '') + ': ' + fertList.join(', ');
+                    else{
+                        msg = 'There are not fertilizers selected';
+                    }
+                    this.infofieldset.setInfo(msg);
+                    this.infofieldset.show();
+                }else{
+                    this.infofieldset.hide();
+                }
+            },
             enableOptionsIfDataExists: function(records, granType){
                 if(records.length == 0){
                     // there aren't fertilizers selected.
@@ -353,12 +398,14 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                     // data then an alert will show.
                     this.noDataAlertWasShown = false;
                     this.submitButton.disable();
+                    this.setShowNoDataInfo(true);
                 }else{
                     // in this case, time-options should be initialized
                     // with the shorter year renge for which the data
                     // exist.
                     // time-options must be enabled.
                     this.fertilizers.setDisabledTimeOptions(false);
+                    this.setShowNoDataInfo(false);
                     if (this.aoiFieldSet.selectedRegions.getValue().length != 0 || granType == 'pakistan')
                         this.submitButton.enable();
                     else
@@ -394,6 +441,7 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                         this.fertilizers.setDisabledTimeOptions(true);
                         this.submitButton.disable();
                         this.showNoDataAlert();
+                        this.setShowNoDataInfo(true);
                     }else{
                         // setup store for year combo
                         var yearSelector = this.yearSelector;

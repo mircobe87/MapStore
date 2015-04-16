@@ -349,7 +349,7 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                     }),
                     columns: {
                         id: 'nutrient_lbl',
-                        header: 'Fertilizer',
+                        header: '',
                         dataIndex: 'nutrient'
                     },
                     allowBlank: false,

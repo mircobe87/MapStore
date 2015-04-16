@@ -120,6 +120,7 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
         {name: 'oldest_dist_y', mapping: 'properties.oldest_dist_y'},
         {name: 'newest_dist_y', mapping: 'properties.newest_dist_y'}
     ],
+    radioQtipTooltip: "You have to be logged in to use this method",
      /**
       * api: method[addActions]
       */
@@ -170,7 +171,66 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
             autoScroll: true,
             frame: true,
             items:[
-                { // TIME RANGE  radiogroup ------------------------------
+                {   // OUTPUT TYPE radiogroup ------------------------------
+                    fieldLabel: this.outputTypeText,
+                    xtype: 'radiogroup',
+                    anchor: '100%',
+                    autoHeight: true,
+                    name: 'outputType',
+                    ref: 'outputType',
+                    checkboxToggle: true,
+                    title: this.outputTypeText,
+                    autoHeight: true,
+                    defaultType: 'radio', // each item will be a radio button
+                    items: [
+                        {
+                            boxLabel: 'Data',
+                            name: 'outputtype',
+                            listeners: this.setRadioQtip(this.radioQtipTooltip),
+                            inputValue: 'data',
+                            disabled: true
+                        },{
+                            boxLabel: 'Chart',
+                            name: 'outputtype',
+                            inputValue: 'chart',
+                            checked: true
+                        }
+                    ],
+                    listeners: {
+                        change: function(c,checked){
+                            var outputValue = c.getValue().inputValue;
+                            var submitButton = this.output.submitButton;
+                            var aoiFieldSet = this.output.aoiFieldSet;
+                            var areaSelector = aoiFieldSet.AreaSelector;
+                            var gran_type = aoiFieldSet.gran_type.getValue().inputValue;
+                            var submitButtonState = submitButton.disabled;
+                            var xType = 'gxp_nrlFertilizer' + (outputValue == 'data' ? 'Tab' : 'Chart') + 'Button';
+
+                            this.output.outputMode = outputValue;
+                            submitButton.destroy();
+                            delete submitButton;
+
+                            this.output.addButton({
+                                url: this.dataUrl,
+                                typeName: this.typeNameData,
+                                xtype: xType,
+                                ref: '../submitButton',
+                                highChartExportUrl: this.highChartExportUrl,
+                                target:this.target,
+                                form: this,
+                            });
+
+                            var store = areaSelector.store;
+                            this.output.fireEvent('update',store);
+                            this.output.fireEvent('show');
+                            this.output.doLayout();
+                            this.output.syncSize();
+
+                            this.output.submitButton.setDisabled(submitButtonState);
+                        },
+                        scope: this
+                    }
+                },{ // TIME RANGE  radiogroup ------------------------------
                     style: {
                         marginTop: '6px'
                     },
@@ -272,7 +332,7 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                     xtype: 'nrl_checkboxcelectiongrid',
                     title: 'Fertilizers',
                     enableHdMenu: false,
-                    hideHeaders: true,
+                    hideHeaders: false,
                     hidden: false,
                     ref: 'fertilizers',
                     height: 160,
@@ -301,7 +361,8 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                             var granType = this.output.aoiFieldSet.gran_type.getValue().inputValue;
                             this.output.enableOptionsIfDataExists(records, granType);
                             // generates default chart options
-                            this.output.submitButton.initChartOpt(this.output);
+                            if(this.output.outputMode != 'data')
+                                this.output.submitButton.initChartOpt(this.output);
                         }
                     },
                     // it'll contains, for each retilizers, start and end year for
@@ -357,7 +418,7 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
             buttons:[
                 {
                     url: this.dataUrl,
-                    xtype: 'gxp_nrlFertilizerButton',
+                    xtype: 'gxp_nrlFertilizerChartButton',
                     typeName: this.typeNameData,
                     ref: '../submitButton',
                     target: this,
@@ -471,7 +532,8 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                         }
                     }
                 }
-            }
+            },
+            outputMode: 'chart'
         };
 
         config = Ext.apply(Fertilizers, config || {});
@@ -496,8 +558,30 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
         },this);
 
         return this.output;
+    },
+    setRadioQtip: function (t){
+        var o = {
+            afterrender: function() {
+                //Ext.QuickTips.init();
+                var id  = Ext.get(Ext.DomQuery.select('#x-form-el-'+this.id+' div'));
+                Ext.QuickTips.register({ target:  id.elements[id.elements.length-1].id, text: t});
+            },
+            destroy:function(){
+                var id = Ext.get(Ext.DomQuery.select('#x-form-el-'+this.id+' div'));
+                Ext.QuickTips.unregister(id.elements[id.elements.length-1].id);
+            },
+            enable: function() {
+                var id = Ext.get(Ext.DomQuery.select('#x-form-el-'+this.id+' div'));
+                Ext.QuickTips.unregister(id.elements[id.elements.length-1].id);
+            },
+            disable: function() {
+                //Ext.QuickTips.init();
+                var id  = Ext.get(Ext.DomQuery.select('#x-form-el-'+this.id+' div'));
+                Ext.QuickTips.register({ target:  id.elements[id.elements.length-1].id, text: t});
+            }
+        }
+        return o;
     }
-
- });
+});
 
 Ext.preg(gxp.plugins.nrl.Fertilizers.prototype.ptype, gxp.plugins.nrl.Fertilizers);

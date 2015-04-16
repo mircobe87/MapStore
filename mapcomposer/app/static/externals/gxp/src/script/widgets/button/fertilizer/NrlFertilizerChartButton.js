@@ -26,10 +26,10 @@ Ext.namespace('gxp.widgets.button');
  *    Base class to create chart
  *
  */
-gxp.widgets.button.NrlFertilizerButton = Ext.extend(Ext.SplitButton, {
+gxp.widgets.button.NrlFertilizerChartButton = Ext.extend(Ext.SplitButton, {
 
     /** api: xtype = gxp_nrlchart */
-    xtype: 'gxp_nrlFertilizerButton',
+    xtype: 'gxp_nrlFertilizerChartButton',
     iconCls: "gxp-icon-nrl-chart",
     text: 'Generate Chart',
     optionsTitle: "Chart Options",
@@ -346,4 +346,4 @@ gxp.widgets.button.NrlFertilizerButton = Ext.extend(Ext.SplitButton, {
     }
 });
 
-Ext.reg(gxp.widgets.button.NrlFertilizerButton.prototype.xtype, gxp.widgets.button.NrlFertilizerButton);
+Ext.reg(gxp.widgets.button.NrlFertilizerChartButton.prototype.xtype, gxp.widgets.button.NrlFertilizerChartButton);

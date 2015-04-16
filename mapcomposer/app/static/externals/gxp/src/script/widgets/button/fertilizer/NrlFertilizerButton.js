@@ -154,7 +154,7 @@ gxp.widgets.button.NrlFertilizerButton = Ext.extend(Ext.SplitButton, {
         return fieldSet;
     },
     queryOptions: {},
-    chartOpt: undefined,
+    chartOpt: {},
     menu: {
         items: [
             {
@@ -164,7 +164,6 @@ gxp.widgets.button.NrlFertilizerButton = Ext.extend(Ext.SplitButton, {
                 handler:function(option){
                     //get mode
                     var mainButton = this.refOwner;
-                    this.refOwner.chartOpt = this.refOwner.getChartOpt(mainButton.refOwner);
 
                     var stackedCharts = mainButton.stackedCharts;
                     var fieldSetList = [];
@@ -275,7 +274,6 @@ gxp.widgets.button.NrlFertilizerButton = Ext.extend(Ext.SplitButton, {
         };
 
         var viewparams = getViewParams(this.refOwner);
-        this.chartOpt = this.getChartOpt(this.refOwner);
 
         Ext.Ajax.request({
             scope:this,
@@ -320,7 +318,7 @@ gxp.widgets.button.NrlFertilizerButton = Ext.extend(Ext.SplitButton, {
             }
         });
     },
-    getChartOpt: function(form){
+    initChartOpt: function(form){
 
         var selectedNutrients = form.fertilizers.getSelections();
         var colorRGB = nrl.chartbuilder.util.randomColorsRGB(selectedNutrients.length);
@@ -342,17 +340,8 @@ gxp.widgets.button.NrlFertilizerButton = Ext.extend(Ext.SplitButton, {
                 dataIndex: selNut.data.nutrient,
                 unit: '(000 tons)'
             }
-            if (options != undefined){
-                if (options.series[selNut.data.nutrient] != undefined){
-                    Ext.apply(ret.series[selNut.data.nutrient], {
-                        color: options.series[selNut.data.nutrient].color,
-                        lcolor: options.series[selNut.data.nutrient].lcolor,
-                        type: options.series[selNut.data.nutrient].type,
-                    });
-                }
-            }
         }
-
+        Ext.apply(options, ret);
         return ret;
     }
 });

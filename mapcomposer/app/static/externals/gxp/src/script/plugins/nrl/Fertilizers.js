@@ -170,57 +170,7 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
             autoScroll: true,
             frame: true,
             items:[
-                {   // FERTILIZERS grid ------------------------------------
-                    xtype: 'nrl_checkboxcelectiongrid',
-                    title: 'Fertilizers',
-                    enableHdMenu: false,
-                    hideHeaders: true,
-                    hidden: false,
-                    ref: 'fertilizers',
-                    height: 160,
-                    store: new Ext.data.JsonStore({
-                        fields: this.metadataFields,
-                        autoLoad: true,
-                        url: this.metadataUrl,
-                        root: 'features',
-                        idProperty:'nutrient',
-                        listeners:{
-                            scope:this,
-                            load:loadStoreTrigger
-                        }
-                    }),
-                    columns: {
-                        id: 'nutrient_lbl',
-                        header: 'Fertilizer',
-                        dataIndex: 'nutrient'
-                    },
-                    allowBlank: false,
-                    name: 'fertilizers',
-                    anchor: '100%',
-                    listeners: {
-                        scope: this,
-                        selectionchange: function(records){
-                            var granType = this.output.aoiFieldSet.gran_type.getValue().inputValue;
-                            this.output.enableOptionsIfDataExists(records, granType);
-                        }
-                    },
-                    // it'll contains, for each retilizers, start and end year for
-                    // national data, province data and district data.
-                    metadata: {},
-                    setDisabledTimeOptions: function(boolVal){
-                        var timeWidgets = [
-                            this.ownerCt.timerange,
-                            this.ownerCt.yearRangeSelector,
-                            this.ownerCt.yearSelector,
-                            this.ownerCt.monthRangeSelector
-                        ];
-                        for(var i=0; i<timeWidgets.length; i++)
-                            if (boolVal)
-                                timeWidgets[i].disable();
-                            else
-                                timeWidgets[i].enable();
-                    }
-                },{ // TIME RANGE  radiogroup ------------------------------
+                { // TIME RANGE  radiogroup ------------------------------
                     style: {
                         marginTop: '6px'
                     },
@@ -287,24 +237,6 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                     xtype: 'yearrangeselector',
                     anchor: '100%',
                     disabled: true
-                },{ // INFO fieldset ---------------------------------------
-                    style: {
-                        marginTop: '12px',
-                    },
-                    xtype: 'fieldset',
-                    ref: 'infofieldset',
-                    anchor: '100%',
-                    items: [
-                        {
-                            xtype: 'label',
-                            html: 'ok',
-                            ref: 'lbl'
-                        }
-                    ],
-                    setInfo: function(html){
-                        this.lbl.setText(html, false);
-                    },
-                    hidden: true
                 },{ // AOI selector ----------------------------------------
                     style: {
                         marginTop: '6px'
@@ -336,6 +268,77 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                             this.ownerCt.enableOptionsIfDataExists(records, granType);
                         }
                     }
+                },{   // FERTILIZERS grid ------------------------------------
+                    xtype: 'nrl_checkboxcelectiongrid',
+                    title: 'Fertilizers',
+                    enableHdMenu: false,
+                    hideHeaders: true,
+                    hidden: false,
+                    ref: 'fertilizers',
+                    height: 160,
+                    store: new Ext.data.JsonStore({
+                        fields: this.metadataFields,
+                        autoLoad: true,
+                        url: this.metadataUrl,
+                        root: 'features',
+                        idProperty:'nutrient',
+                        listeners:{
+                            scope:this,
+                            load:loadStoreTrigger
+                        }
+                    }),
+                    columns: {
+                        id: 'nutrient_lbl',
+                        header: 'Fertilizer',
+                        dataIndex: 'nutrient'
+                    },
+                    allowBlank: false,
+                    name: 'fertilizers',
+                    anchor: '100%',
+                    listeners: {
+                        scope: this,
+                        selectionchange: function(records){
+                            var granType = this.output.aoiFieldSet.gran_type.getValue().inputValue;
+                            this.output.enableOptionsIfDataExists(records, granType);
+                            // generates default chart options
+                            this.output.submitButton.initChartOpt(this.output);
+                        }
+                    },
+                    // it'll contains, for each retilizers, start and end year for
+                    // national data, province data and district data.
+                    metadata: {},
+                    setDisabledTimeOptions: function(boolVal){
+                        var timeWidgets = [
+                            this.ownerCt.timerange,
+                            this.ownerCt.yearRangeSelector,
+                            this.ownerCt.yearSelector,
+                            this.ownerCt.monthRangeSelector
+                        ];
+                        for(var i=0; i<timeWidgets.length; i++)
+                            if (boolVal)
+                                timeWidgets[i].disable();
+                            else
+                                timeWidgets[i].enable();
+                    }
+                },{ // INFO fieldset ---------------------------------------
+                    title: 'Note',
+                    style: {
+                        marginTop: '12px',
+                    },
+                    xtype: 'fieldset',
+                    ref: 'infofieldset',
+                    anchor: '100%',
+                    items: [
+                        {
+                            xtype: 'label',
+                            html: 'ok',
+                            ref: 'lbl'
+                        }
+                    ],
+                    setInfo: function(html){
+                        this.lbl.setText(html, false);
+                    },
+                    hidden: true
                 }
             ],
             listeners: {

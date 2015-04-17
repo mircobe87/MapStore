@@ -42,7 +42,6 @@ gxp.widgets.button.NrlFertilizerTabButton = Ext.extend(Ext.Button, {
     windowManagerOptions:{title:"Fertilizer"},
     text: 'Generate Table',
     queryOptions: {},
-    lastParams: {},
     handler: function () {
         var getViewParams = function(form){
             // gets a list of nutrients selected
@@ -128,7 +127,16 @@ gxp.widgets.button.NrlFertilizerTabButton = Ext.extend(Ext.Button, {
 
         store.load({
             callback: function(records, req){
-                store.lastParams = req.params;
+                var pNameList = req.params.propertyName.split(',');
+                // removes the property that will be empty
+                switch (this.queryOptions.gran_type){
+                    case 'pakistan': pNameList.remove('province').remove('district'); break;
+                    case 'province': pNameList.remove('district'); break;
+                }
+                // sets the property name for the csv exporting query
+                store.exportParams = req.params;
+                store.exportParams.propertyName = pNameList.join(',');
+
                 if (this.queryOptions.timerange == 'monthly'){
                     store.sort([
                         {field: 'province', direction: 'ASC'},
@@ -317,11 +325,11 @@ gxp.widgets.button.NrlFertilizerTabButton = Ext.extend(Ext.Button, {
                     iconCls: 'icon-disk',
                     handler: function(){
                         var store = this.ownerCt.ownerCt.getStore();
-                        var lastParams = store.lastParams;
+                        var exportParams = store.exportParams;
                         var dwl = store.url + "?";
-                        lastParams.outputFormat = "CSV";
-                        for (var i in lastParams){
-                            dwl+=i + "=" +encodeURIComponent(lastParams[i])+"&";
+                        exportParams.outputFormat = "CSV";
+                        for (var i in exportParams){
+                            dwl+=i + "=" +encodeURIComponent(exportParams[i])+"&";
                         }
                         window.open(dwl);
                     }

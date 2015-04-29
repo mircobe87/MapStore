@@ -59,11 +59,17 @@
          "runConfigs": {
 
             "csvingestion":{
-                "xtype":"geobatch_run_local_form",
+                "xtype":"geobatch_csv_ingestion_run_form",
                 "baseDir": "/home/geosolutions/admin",
                 "fileBrowserUrl": "mvc/fileManager/extJSbrowser",
                 "fileRegex": "\\.csv$",
-                "path":"/test_csv/"
+                "path":"/test_csv/",
+                "ingestionSources": [
+                    "Cropdata",
+                    "Agromet",
+                    "Fertilizer",
+                    "Market Prices"
+                ]
             },            
             "ndviingestion":{
                 "xtype": "geobatch_run_local_form",

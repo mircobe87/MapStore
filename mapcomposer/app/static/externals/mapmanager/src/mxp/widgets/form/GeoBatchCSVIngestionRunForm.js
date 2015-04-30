@@ -76,6 +76,9 @@ mxp.widgets.GeoBatchCSVIngestionRunForm = Ext.extend(Ext.Panel, {
          */
         'fail'
     ],
+
+    propertiesLists: [],
+
     layout: 'fit',
     autoScroll: false,
     // i18n
@@ -117,6 +120,42 @@ mxp.widgets.GeoBatchCSVIngestionRunForm = Ext.extend(Ext.Panel, {
                     ref: '../pathFileText'
                 }],
                 buttons: [{
+                    text: this.uploadButtonText,
+                    ref: '../upload',
+                    iconCls: 'update_manager_ic',
+                    handler: function(btn) {
+                        var pluploadPanel = new Ext.ux.PluploadPanel({
+                            autoScroll: true,
+                            layout: 'fit',
+                            url: this.adminUrl + this.fileBrowserUrl.substring(0, this.fileBrowserUrl.lastIndexOf('/')) + '/upload',
+                            multipart: true,
+                            listeners: {
+                                beforestart: function() {
+                                    var multipart_params = pluploadPanel.multipart_params || {};
+                                    Ext.apply(multipart_params, {
+                                        folder: this.path
+                                    })
+                                    pluploadPanel.multipart_params = multipart_params;
+                                },
+                                fileUploaded: function(file) {
+                                },
+                                uploadcomplete: function() {
+                                },
+                                scope: this
+                            }
+                        });
+                        var win = new Ext.Window({
+                            title: this.uploadButtonText,
+                            width: 400,
+                            height: 300,
+                            layout: 'fit',
+                            resizable: true,
+                            items: [pluploadPanel]
+                        });
+                        win.show();
+                    },
+                    scope: this
+                }, {
                     scope: this,
                     xtype: 'button',
                     text: 'Explore',
@@ -206,7 +245,6 @@ mxp.widgets.GeoBatchCSVIngestionRunForm = Ext.extend(Ext.Panel, {
                                 }
                             }]
                         });
-
                         win.show();
                     }
                 }]
@@ -214,52 +252,13 @@ mxp.widgets.GeoBatchCSVIngestionRunForm = Ext.extend(Ext.Panel, {
         }];
 
         this.buttons = [{
-            text: this.uploadButtonText,
-            ref: '../upload',
-            iconCls: 'update_manager_ic',
-            handler: function(btn) {
-                var pluploadPanel = new Ext.ux.PluploadPanel({
-                    autoScroll: true,
-                    layout: 'fit',
-                    url: this.adminUrl + this.fileBrowserUrl.substring(0, this.fileBrowserUrl.lastIndexOf('/')) + '/upload',
-                    multipart: true,
-                    listeners: {
-                        beforestart: function() {
-                            var multipart_params = pluploadPanel.multipart_params || {};
-                            Ext.apply(multipart_params, {
-                                folder: this.path
-                            })
-                            pluploadPanel.multipart_params = multipart_params;
-                        },
-                        fileUploaded: function(file) {
-                            //this.fileBrowser.fileTreePanel.root.reload()
-                        },
-                        uploadcomplete: function() {
-
-                        },
-                        scope: this
-                    }
-                });
-                var win = new Ext.Window({
-                    title: this.uploadButtonText,
-                    width: 400,
-                    height: 300,
-                    layout: 'fit',
-                    resizable: true,
-                    items: [pluploadPanel]
-                });
-                win.show();
-            },
-            scope: this
-        }, {
             ref: '../run',
             text: this.runButtonText,
             disabled: true,
             iconCls: 'update_manager_ic',
             handler: function(btn) {
-                var filebrowser = btn.refOwner.fileBrowser;
-                var node = filebrowser.fileTreePanel.selModel.getSelectedNode();
-                btn.refOwner.runLocal(btn.refOwner.flowId, node);
+                var filePath = btn.refOwner.form.pathFileText.getValue();
+                btn.refOwner.callRun(btn.refOwner.flowId, filePath);
             }
         }];
 
@@ -279,6 +278,7 @@ mxp.widgets.GeoBatchCSVIngestionRunForm = Ext.extend(Ext.Panel, {
         }, this);
     },
 
+    // adds the needed widgets to the form to get extra properties.
     loadCustomOptions: function(comboSourceVal){
         var removeCustomOptions = function(form){
             if (form.customOptions != undefined){
@@ -306,18 +306,30 @@ mxp.widgets.GeoBatchCSVIngestionRunForm = Ext.extend(Ext.Panel, {
                 customOptionsConfigs.customOptionsType = 'marketPrices';
                 customOptionsConfigs.items.push({
                     xtype: 'combo',
-                    ref: 'denominatorCombo',
+                    ref: 'denominator', // must be the same defined in managerConfig.js config file
                     fieldLabel: 'Denominator',
                     isValid: function(){
                         return this.getValue() != '';
+                    },
+                    store: ['uno', 'due'],
+                    listeners: {
+                        'select': function(combo){
+                            this.refOwner.refOwner.refOwner.allowRun();
+                        }
                     }
                 });
                 customOptionsConfigs.items.push({
                     xtype: 'combo',
-                    ref: 'exchangeRateCombo',
+                    ref: 'exchangeRate', // must be the same defined in managerConfig.js config file
                     fieldLabel: 'Exchange Rate',
                     isValid: function(){
                         return this.getValue() != '';
+                    },
+                    store: ['tre', 'quattro'],
+                    listeners: {
+                        'select': function(combo){
+                            this.refOwner.refOwner.refOwner.allowRun();
+                        }
                     }
                 });
 
@@ -342,16 +354,39 @@ mxp.widgets.GeoBatchCSVIngestionRunForm = Ext.extend(Ext.Panel, {
         return true;
     },
 
-    runLocal: function(flowId, node) {
+    // return a string with all propertis to appentd on the body of the rest request.
+    // this function search for property keys in config file (managerConfig.js).
+    getCustomOptionsProperies: function(){
+        var retval = "";
+        if (this.form.customOptions){
+            var customOptsTarget = this.form.customOptions.customOptionsType;
+            var propertyKeyList = this.propertiesLists[customOptsTarget];
+            var retval = "";
+            for(var i=0; i<propertyKeyList.length; i++){
+                var key = propertyKeyList[i];
+                retval += key + '=' + this.form.customOptions[key].getValue() + '\n';
+            }
+        }
+        return retval;
+    },
+
+    callRun: function(flowId, filePath) {
+        var now = new Date();
+        var propFileNameTime = now.dateFormat("YmdHis"); // return a date like YYYYMMDDhhmmss
+
+        var propFileContent = 'CSVlocation=' + filePath + '\n';
+        propFileContent += this.getCustomOptionsProperies();
+
         var requestConf = {
-            url: this.geoBatchRestURL + 'flows/' + flowId + '/runlocal',
+            url: this.geoBatchRestURL + 'flows/' + flowId + '/run',
+            params: {
+                fileName: propFileNameTime + '-' + filePath.substring(filePath.lastIndexOf('/')+1, filePath.length).replace(/[.]/g,'_') + '.properties'
+            },
             method: 'POST',
             headers: {
-                'Content-Type': 'application/xml',
-                'Accept': this.acceptTypes_,
-                'Authorization': this.authorization_ //TODO
+                'Content-Type': 'text/plain'
             },
-            xmlData: '<runInfo><file>' + this.baseDir + node.id + '</file></runInfo>',
+            xmlData: propFileContent,
             scope: this,
             success: function(response, opts) {
                 //var data = self.afterFind( Ext.util.JSON.decode(response.responseText) ); 
@@ -364,7 +399,7 @@ mxp.widgets.GeoBatchCSVIngestionRunForm = Ext.extend(Ext.Panel, {
             }
         };
 
-        //Ext.Ajax.request(requestConf);
+        Ext.Ajax.request(requestConf);
 
     },
     /**

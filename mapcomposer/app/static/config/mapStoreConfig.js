@@ -369,6 +369,34 @@
             },
             "outputTarget":"nrl"
       },{
+            "ptype":"nrl_market_prices",
+            "layerStyle":{
+                "strokeColor":"azure",
+                "strokeWidth":1,
+                "fillOpacity":0.2,
+                "cursor":"pointer"
+            },
+            "currencies": [
+                ["usd", "US Dollars"],
+                ["pkr", "PK Rupees"]
+            ],
+            "defaultCurrency": "usd",
+            "denominators": [
+                ["40", "40 kg"],
+                ["100", "100 kg"]
+            ],
+            "defaultDenominator": "40",
+            "typeNameData":"nrl:fertilizer_data",
+            "dataUrl":"http://84.33.2.75/geoserver/ows",
+            "factorsurl":"http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:agrometdescriptor&max&outputFormat=json",
+            "metadataUrl":"http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:fertilizers_metadata&outputFormat=json",
+            "highChartExportUrl" :"http://84.33.2.75/highcharts-export/",
+            "titleText": "Market Prices",
+            "outputConfig":{
+                "id":"Market Prices"
+            },
+            "outputTarget":"nrl"
+      },{
 		  "ptype":"nrl_report_crop_data",
           "cropPluginRef":"CropData",
 		 "factorsurl":"http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:agrometdescriptor&max&outputFormat=json",

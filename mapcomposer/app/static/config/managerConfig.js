@@ -756,6 +756,10 @@
                         {
                           "label": "Yield", 
                           "name": "yield"
+                        },
+                        {
+                          "label": "Denominator",
+                          "name": "denominator"
                         }
                       ], 
                       "xtype": "jsonstore"
@@ -827,6 +831,10 @@
                         {
                           "label": "Yield", 
                           "name": "yield"
+                        },
+                        {
+                          "label": "Denominator",
+                          "name": "denominator"
                         }
                       ], 
                       "mode": "local", 

@@ -100,6 +100,7 @@ mxp.widgets.GeoBatchCSVIngestionRunForm = Ext.extend(Ext.Panel, {
             padding: 4,
             items: [{
                 xtype: 'combo',
+                anchor: '100%',
                 ref: 'comboSource',
                 autoSelect: true,
                 autoLoad: true,
@@ -117,6 +118,7 @@ mxp.widgets.GeoBatchCSVIngestionRunForm = Ext.extend(Ext.Panel, {
                 collapsible: false,
                 items: [{
                     xtype: 'textfield',
+                    allowBlank: false,
                     ref: '../pathFileText'
                 }],
                 buttons: [{
@@ -257,7 +259,7 @@ mxp.widgets.GeoBatchCSVIngestionRunForm = Ext.extend(Ext.Panel, {
             disabled: true,
             iconCls: 'update_manager_ic',
             handler: function(btn) {
-                var filePath = btn.refOwner.form.pathFileText.getValue();
+                var filePath = btn.refOwner.baseDir + btn.refOwner.form.pathFileText.getValue();
                 btn.refOwner.callRun(btn.refOwner.flowId, filePath);
             }
         }];
@@ -311,7 +313,51 @@ mxp.widgets.GeoBatchCSVIngestionRunForm = Ext.extend(Ext.Panel, {
                     isValid: function(){
                         return this.getValue() != '';
                     },
-                    store: ['uno', 'due'],
+                    anchor: '100%',
+                    triggerAction: 'all',
+                    mode: 'local',
+                    typeAhead: true,
+                    lazyRender: false,
+                    forceSelected: true,
+                    allowBlank: false,
+                    displayField: 'name',
+                    valueField: 'shortname',
+                    editable: false,
+                    store: new Ext.data.JsonStore({
+                        baseParams: {
+                            viewParams: 'class:denominator'
+                        },
+                        fields: [{
+                            name: 'id',
+                            mapping: 'properties.uid'
+                        }, {
+                            name: 'cid',
+                            mapping: 'properties.cid'
+                        }, {
+                            name: 'cls',
+                            mapping: 'properties.cls'
+                        }, {
+                            name: 'coefficient',
+                            mapping: 'properties.coefficient'
+                        }, {
+                            name: 'description',
+                            mapping: 'properties.description'
+                        }, {
+                            name: 'filter',
+                            mapping: 'properties.filter'
+                        }, {
+                            name: 'name',
+                            mapping: 'properties.name'
+                        }, {
+                            name: 'shortname',
+                            mapping: 'properties.shortname'
+                        }],
+                        autoLoad: true,
+                        url: this.factorUrl,
+                        root: 'features',
+                        idProperty: 'uid'
+                    }),
+                    value: this.defaultDenominator,
                     listeners: {
                         'select': function(combo){
                             this.refOwner.refOwner.refOwner.allowRun();
@@ -320,17 +366,63 @@ mxp.widgets.GeoBatchCSVIngestionRunForm = Ext.extend(Ext.Panel, {
                 });
                 customOptionsConfigs.items.push({
                     xtype: 'combo',
+                    anchor: '100%',
                     ref: 'exchangeRate', // must be the same defined in managerConfig.js config file
-                    fieldLabel: 'Exchange Rate',
+                    fieldLabel: 'Exchange Rate [PKR/USD]',
                     isValid: function(){
-                        return this.getValue() != '';
+                        return this.getRawValue() != '';
                     },
-                    store: ['tre', 'quattro'],
+                    triggerAction: 'all',
+                    mode: 'local',
+                    typeAhead: true,
+                    lazyRender: false,
+                    forceSelected: true,
+                    allowBlank: false,
+                    displayField: 'coefficient',
+                    valueField: 'coefficient',
+                    store: new Ext.data.JsonStore({
+                        baseParams: {
+                            viewParams: 'class:exchangerate'
+                        },
+                        fields: [{
+                            name: 'id',
+                            mapping: 'properties.uid'
+                        }, {
+                            name: 'cid',
+                            mapping: 'properties.cid'
+                        }, {
+                            name: 'cls',
+                            mapping: 'properties.cls'
+                        }, {
+                            name: 'coefficient',
+                            mapping: 'properties.coefficient'
+                        }, {
+                            name: 'description',
+                            mapping: 'properties.description'
+                        }, {
+                            name: 'filter',
+                            mapping: 'properties.filter'
+                        }, {
+                            name: 'name',
+                            mapping: 'properties.name'
+                        }, {
+                            name: 'shortname',
+                            mapping: 'properties.shortname'
+                        }],
+                        autoLoad: true,
+                        url: this.factorUrl,
+                        root: 'features',
+                        idProperty: 'uid'
+                    }),
                     listeners: {
                         'select': function(combo){
                             this.refOwner.refOwner.refOwner.allowRun();
+                        },
+                        'keyup': function(combo){
+                            this.refOwner.refOwner.refOwner.allowRun();
                         }
-                    }
+                    },
+                    enableKeyEvents: true
                 });
 
                 var customOptions = new Ext.form.FieldSet(customOptionsConfigs);

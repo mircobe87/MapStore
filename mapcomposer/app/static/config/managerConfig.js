@@ -72,7 +72,8 @@
                 ],
                 "propertiesLists": {
                     "marketPrices": ["denominator", "exchangeRate"]
-                }
+                },
+                "factorUrl": "http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:measure_units_for_crop&outputFormat=json"
             },
             "ndviingestion": {
                 "xtype": "geobatch_run_local_form",

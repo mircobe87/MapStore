@@ -108,26 +108,21 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
     },
     metadataUrl: "http://84.33.2.24/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:crops_metadata&outputFormat=json",
     metadataFields: [{
-        name: 'nutrient',
-        mapping: 'properties.nutrient'
+        name: 'crop',
+        mapping: 'properties.crop'
     }, {
-        name: 'oldest_nat_y',
-        mapping: 'properties.oldest_nat_y'
+        name: 'label',
+        mapping: 'properties.crop',
+        convert: function(v, rec){
+            console.log(nrl.chartbuilder.util.toTitleCase(v));
+            return nrl.chartbuilder.util.toTitleCase(v);
+        }
     }, {
-        name: 'newest_nat_y',
-        mapping: 'properties.newest_nat_y'
+        name: 'max_dec_abs',
+        mapping: 'properties.max_dec_abs'
     }, {
-        name: 'oldest_prov_y',
-        mapping: 'properties.oldest_prov_y'
-    }, {
-        name: 'newest_prov_y',
-        mapping: 'properties.newest_prov_y'
-    }, {
-        name: 'oldest_dist_y',
-        mapping: 'properties.oldest_dist_y'
-    }, {
-        name: 'newest_dist_y',
-        mapping: 'properties.newest_dist_y'
+        name: 'min_dec_abs',
+        mapping: 'properties.min_dec_abs'
     }],
     radioQtipTooltip: "You have to be logged in to use this method",
     /**
@@ -350,7 +345,7 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                 columns: {
                     id: 'crop_lbl',
                     header: '',
-                    dataIndex: 'crop'
+                    dataIndex: 'label'
                 },
                 allowBlank: false,
                 name: 'crops',
@@ -679,20 +674,20 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                 var maxYear = Math.floor((smallestMax + 1) / 36);
 
                 // sets up yearRangeSelector max & min values
-                this.output.yearRangeSelector.setMaxValue(maxYear);
-                this.output.yearRangeSelector.setMinValue(minYear);
+                this.yearRangeSelector.setMaxValue(maxYear);
+                this.yearRangeSelector.setMinValue(minYear);
 
                 // sets year values for yearSelector combobox
                 // if it's possible it keeps the previous selected year
-                var refYear = this.output.yearSelector.getValue();
-                this.output.yearSelector.setRange(minYear, maxYear);
+                var refYear = this.yearSelector.getValue();
+                this.yearSelector.setRange(minYear, maxYear);
                 if (refYear == '' || parseInt(refYear) > maxYear || parseInt(refYear) < minYear)
-                    this.output.yearSelector.setValue(maxYear);
+                    this.yearSelector.setValue(maxYear);
                 else
-                    this.output.yearSelector.setValue(refYear);
+                    this.yearSelector.setValue(refYear);
 
                 // sets the range for monthRangeSelector
-                var currentRefYear = parseInt(this.output.yearSelector.getValue());
+                var currentRefYear = parseInt(this.yearSelector.getValue());
                 // the max and min absolute decades that can be selected by monthRangeSelector
                 // for the reference year choosen
                 var minDesiredAbsDec = currentRefYear * 36 - 35;
@@ -708,10 +703,12 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                 if (smallestMax < maxDesiredAbsDec)
                     maxMonth = absDecToMonth(smallestMax);
                 else
-                    minMonth = absDecToMonth(maxDesiredAbsDec);
+                    maxMonth = absDecToMonth(maxDesiredAbsDec);
 
-                this.output.monthRangeSelector.setMinValue(minMonth);
-                this.output.monthRangeSelector.setMaxValue(maxMonth);
+                if(maxMonth < minMonth) maxMonth += 12;
+
+                this.monthRangeSelector.setMinValue(minMonth);
+                this.monthRangeSelector.setMaxValue(maxMonth);
             },
             outputMode: 'chart'
         };

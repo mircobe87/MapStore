@@ -51,6 +51,8 @@ nrl.chartbuilder.marketprces.commodity = {
         // for each feature in json data...
         for (var i=0; i<json.features.length; i++){
             var feature = json.features[i].properties;
+            if (granType == 'pakistan')
+                feature.region = 'pakistan';
 
             // gets an index form the data that it's relative (same region) to the
             // current feature i

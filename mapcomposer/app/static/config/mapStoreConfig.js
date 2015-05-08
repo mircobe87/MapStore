@@ -371,9 +371,9 @@
       },{
             "ptype":"nrl_market_prices",
             "layerStyle":{
-                "strokeColor":"azure",
+                "strokeColor":"orange",
                 "strokeWidth":1,
-                "fillOpacity":0.2,
+                "fillOpacity":0.3,
                 "cursor":"pointer"
             },
             "currencies": [
@@ -381,7 +381,7 @@
                 ["pkr", "PK Rupees"]
             ],
             "defaultCurrency": "usd",
-            "defaultDenominator": "1 Kg",
+            "defaultDenominator": "1",
             "typeNameData":"nrl:fertilizer_data",
             "dataUrl":"http://84.33.2.75/geoserver/ows",
             "factorsurl":"http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:measure_units_for_crop&outputFormat=json",

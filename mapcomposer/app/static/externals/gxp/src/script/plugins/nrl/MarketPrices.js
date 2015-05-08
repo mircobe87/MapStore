@@ -114,7 +114,6 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
         name: 'label',
         mapping: 'properties.crop',
         convert: function(v, rec){
-            console.log(nrl.chartbuilder.util.toTitleCase(v));
             return nrl.chartbuilder.util.toTitleCase(v);
         }
     }, {
@@ -313,13 +312,14 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                     grantypeChange: function(itemSelected) {
                         var granType = itemSelected.inputValue;
                         var records = this.ownerCt.crops.getSelections();
-
+                        this.refOwner.updateSubmitBtnState();
                         //this.ownerCt.enableOptionsIfDataExists(records, granType);
                     },
                     regionsChange: function(s) {
                         var granType = this.gran_type.getValue().inputValue;
                         var records = this.ownerCt.crops.getSelections();
-
+                        this.refOwner.updateSubmitBtnState();
+                        this.ownerCt.submitButton.initChartOpt(this.ownerCt);
                         //this.ownerCt.enableOptionsIfDataExists(records, granType);
                     }
                 }
@@ -355,9 +355,8 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                     selectionchange: function(records) {
                         if (records.length != 0)
                             this.output.setUpMaxAndMin(records);
-                        else {
-                            // TODO: disable submit button and eventually another widgets
-                        }
+                        this.output.updateSubmitBtnState();
+                        this.output.submitButton.initChartOpt(this.output);
                     }
                 },
                 // it'll contain, for each fertilizers, start and end year for
@@ -413,6 +412,7 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                     listeners: {
                         'select': function() {
                             this.ownerCt.fireEvent('afterlayout', this.ownerCt);
+                            this.ownerCt.ownerCt.submitButton.initChartOpt(this.ownerCt.ownerCt);
                         }
                     }
                 }, {
@@ -429,7 +429,7 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                     forceSelected: true,
                     allowBlank: false,
                     displayField: 'name',
-                    valueField: 'id',
+                    valueField: 'coefficient',
                     value: this.defaultDenominator,
                     store: new Ext.data.JsonStore({
                         baseParams: {
@@ -471,6 +471,7 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                     listeners: {
                         'select': function() {
                             this.ownerCt.fireEvent('afterlayout', this.ownerCt);
+                            this.ownerCt.ownerCt.submitButton.initChartOpt(this.ownerCt.ownerCt);
                         }
                     }
                 }, {
@@ -510,7 +511,12 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                     boxLabel: 'Region',
                     name: 'comparisonby',
                     inputValue: 'region'
-                }]
+                }],
+                listeners: {
+                    change: function(b){
+                        this.ownerCt.submitButton.initChartOpt(this.ownerCt);
+                    }
+                }
             }],
             listeners: {
                 ////////
@@ -527,7 +533,7 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
             },
             buttons: [{
                 url: this.dataUrl,
-                xtype: 'gxp_nrlFertilizerChartButton',
+                xtype: 'gxp_nrlMarketPricesChartButton',
                 typeName: this.typeNameData,
                 ref: '../submitButton',
                 target: this,
@@ -653,25 +659,28 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
             //  - monthRangeSelector
             //  - yearSelector
             setUpMaxAndMin: function(records) {
-                // return a month number from absolute decade
-                // 1: Jan, 2: Feb, ..., 12: Dec
-                var absDecToMonth = function(absDec) {
-                    return Math.floor(((absDec - 1) % 36) / 3) + 1;
-                };
 
                 // it computes the largest absolute-decade range which contains
                 // data for all crops selected.
-                var largestMin = Number.MIN_SAFE_INTEGER;
-                var smallestMax = Number.MAX_SAFE_INTEGER;
+                //var startRange = Number.MIN_SAFE_INTEGER;
+                //var endRange = Number.MAX_SAFE_INTEGER;
+                //for (var rIndex = 0; rIndex < records.length; rIndex++) {
+                //    var recData = records[rIndex].data;
+                //    startRange = recData.min_dec_abs > startRange ? recData.min_dec_abs : startRange;
+                //    endRange = recData.max_dec_abs < endRange ? recData.max_dec_abs : endRange;
+                //}
+
+                var startRange = Number.MAX_SAFE_INTEGER;
+                var endRange = Number.MIN_SAFE_INTEGER;
                 for (var rIndex = 0; rIndex < records.length; rIndex++) {
                     var recData = records[rIndex].data;
-                    largestMin = recData.min_dec_abs > largestMin ? recData.min_dec_abs : largestMin;
-                    smallestMax = recData.max_dec_abs < smallestMax ? recData.max_dec_abs : smallestMax;
+                    startRange = recData.min_dec_abs < startRange ? recData.min_dec_abs : startRange;
+                    endRange = recData.max_dec_abs > endRange ? recData.max_dec_abs : endRange;
                 }
 
                 // gets min and max year from absolute decade
-                var minYear = Math.floor((largestMin + 1) / 36);
-                var maxYear = Math.floor((smallestMax + 1) / 36);
+                var minYear = nrl.chartbuilder.util.getDekDate(startRange).year;
+                var maxYear = nrl.chartbuilder.util.getDekDate(endRange).year;
 
                 // sets up yearRangeSelector max & min values
                 this.yearRangeSelector.setMaxValue(maxYear);
@@ -690,25 +699,42 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                 var currentRefYear = parseInt(this.yearSelector.getValue());
                 // the max and min absolute decades that can be selected by monthRangeSelector
                 // for the reference year choosen
-                var minDesiredAbsDec = currentRefYear * 36 - 35;
-                var maxDesiredAbsDec = minDesiredAbsDec + 36;
+                var minDesiredAbsDec = (currentRefYear-1) * 36 +  1; // jan-dek1 of the previous year
+                var maxDesiredAbsDec =  currentRefYear    * 36 + 36; // dec-dek3 of the current  year
 
                 // sets the largest month range which contains data for the crops selected.
+                var minToSet, maxToSet;
+                if (startRange > minDesiredAbsDec)
+                    minToSet = nrl.chartbuilder.util.getDekDate(startRange);
+                else
+                    minToSet = nrl.chartbuilder.util.getDekDate(minDesiredAbsDec);
+
+                if (endRange < maxDesiredAbsDec)
+                    maxToSet = nrl.chartbuilder.util.getDekDate(endRange);
+                else
+                    maxToSet = nrl.chartbuilder.util.getDekDate(maxDesiredAbsDec);
+
                 var minMonth, maxMonth;
-                if (largestMin > minDesiredAbsDec)
-                    minMonth = absDecToMonth(largestMin);
+                if (minToSet.year < currentRefYear)
+                    minMonth = minToSet.month-1;
                 else
-                    minMonth = absDecToMonth(minDesiredAbsDec);
+                    minMonth = minToSet.month-1 + 12;
 
-                if (smallestMax < maxDesiredAbsDec)
-                    maxMonth = absDecToMonth(smallestMax);
+                if (maxToSet.year < currentRefYear)
+                    maxMonth = maxToSet.month-1;
                 else
-                    maxMonth = absDecToMonth(maxDesiredAbsDec);
+                    maxMonth = maxToSet.month-1 + 12;
+                
+                this.monthRangeSelector.setValue(0, minMonth);
+                this.monthRangeSelector.setValue(1, maxMonth);
+            },
+            updateSubmitBtnState: function(){
+                var gran_type = this.aoiFieldSet.gran_type.getValue().inputValue;
+                var selectedCrops = this.crops.getSelections();
+                var regionList = this.aoiFieldSet.selectedRegions.getValue();
 
-                if(maxMonth < minMonth) maxMonth += 12;
-
-                this.monthRangeSelector.setMinValue(minMonth);
-                this.monthRangeSelector.setMaxValue(maxMonth);
+                var disableBtn = (selectedCrops.length == 0 || gran_type != 'pakistan' && regionList.length == 0);
+                this.submitButton.setDisabled(disableBtn);
             },
             outputMode: 'chart'
         };

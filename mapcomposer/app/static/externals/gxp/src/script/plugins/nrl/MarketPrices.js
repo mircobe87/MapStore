@@ -185,7 +185,7 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                         var areaSelector = aoiFieldSet.AreaSelector;
                         var gran_type = aoiFieldSet.gran_type.getValue().inputValue;
                         var submitButtonState = submitButton.disabled;
-                        var xType = 'gxp_nrlFertilizer' + (outputValue == 'data' ? 'Tab' : 'Chart') + 'Button';
+                        var xType = 'gxp_nrlMarketPrices' + (outputValue == 'data' ? 'Tab' : 'Chart') + 'Button';
 
                         this.output.outputMode = outputValue;
                         submitButton.destroy();
@@ -204,10 +204,22 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                         var store = areaSelector.store;
                         this.output.fireEvent('update', store);
                         this.output.fireEvent('show');
+
+                        
+                        this.output.comparisonby.setDisabled(outputValue == 'data');
+                        if (outputValue == 'data'){
+                            this.output.comparisonby.oldValue = this.output.comparisonby.getValue().inputValue;
+                            this.output.comparisonby.setValue('commodity');
+                        }else{
+                            this.output.comparisonby.setValue(this.output.comparisonby.oldValue);
+                        }
                         this.output.doLayout();
                         this.output.syncSize();
 
                         this.output.submitButton.setDisabled(submitButtonState);
+
+                        if (outputValue != 'data')
+                            this.output.submitButton.initChartOpt(this.output);
                     },
                     scope: this
                 }
@@ -311,14 +323,20 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                     grantypeChange: function(itemSelected) {
                         var granType = itemSelected.inputValue;
                         var records = this.ownerCt.crops.getSelections();
+                        var outputtype = this.ownerCt.outputType.getValue().inputValue;
+                        
                         this.refOwner.updateSubmitBtnState();
-                        this.ownerCt.submitButton.initChartOpt(this.ownerCt);
+                        if (outputtype != 'data')
+                            this.ownerCt.submitButton.initChartOpt(this.ownerCt);
                     },
                     regionsChange: function(s) {
                         var granType = this.gran_type.getValue().inputValue;
                         var records = this.ownerCt.crops.getSelections();
+                        var outputtype = this.ownerCt.outputType.getValue().inputValue;
+
                         this.refOwner.updateSubmitBtnState();
-                        this.ownerCt.submitButton.initChartOpt(this.ownerCt);
+                        if (outputtype != 'data')
+                            this.ownerCt.submitButton.initChartOpt(this.ownerCt);
                     }
                 }
             }, { // COMPARISON radio ------------------------------------
@@ -346,7 +364,9 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                 }],
                 listeners: {
                     change: function(b){
-                        this.ownerCt.submitButton.initChartOpt(this.ownerCt);
+                        var outputtype = this.ownerCt.outputType.getValue().inputValue;
+                        if (outputtype != 'data')
+                            this.ownerCt.submitButton.initChartOpt(this.ownerCt);
                     }
                 }
             }, { // CROPS grid ------------------------------------------
@@ -382,7 +402,10 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                         if (records.length != 0)
                             this.output.setUpMaxAndMin(records);
                         this.output.updateSubmitBtnState();
-                        this.output.submitButton.initChartOpt(this.output);
+
+                        var outputtype = this.output.outputType.getValue().inputValue;
+                        if (outputtype != 'data')
+                            this.output.submitButton.initChartOpt(this.output);
                     }
                 },
                 // it'll contain, for each fertilizers, start and end year for
@@ -421,7 +444,10 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                     listeners: {
                         'select': function() {
                             this.ownerCt.fireEvent('afterlayout', this.ownerCt);
-                            this.ownerCt.ownerCt.submitButton.initChartOpt(this.ownerCt.ownerCt);
+                            
+                            var outputtype = this.ownerCt.ownerCt.outputType.getValue().inputValue;
+                            if (outputtype != 'data')
+                                this.ownerCt.ownerCt.submitButton.initChartOpt(this.ownerCt.ownerCt);
                         }
                     }
                 }, {
@@ -480,7 +506,10 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                     listeners: {
                         'select': function() {
                             this.ownerCt.fireEvent('afterlayout', this.ownerCt);
-                            this.ownerCt.ownerCt.submitButton.initChartOpt(this.ownerCt.ownerCt);
+
+                            var outputtype = this.ownerCt.ownerCt.outputType.getValue().inputValue;
+                            if (outputtype != 'data')
+                                this.ownerCt.ownerCt.submitButton.initChartOpt(this.ownerCt.ownerCt);
                         }
                     }
                 }, {

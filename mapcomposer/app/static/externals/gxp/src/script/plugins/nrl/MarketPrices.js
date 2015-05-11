@@ -313,6 +313,7 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                         var granType = itemSelected.inputValue;
                         var records = this.ownerCt.crops.getSelections();
                         this.refOwner.updateSubmitBtnState();
+                        this.ownerCt.submitButton.initChartOpt(this.ownerCt);
                         //this.ownerCt.enableOptionsIfDataExists(records, granType);
                     },
                     regionsChange: function(s) {

@@ -379,8 +379,16 @@ gxp.widgets.button.NrlMarketPricesChartButton = Ext.extend(Ext.SplitButton, {
             }
         }else{
             // one serie for each selected region
-            var selectedRegions = form.aoiFieldSet.selectedRegions.getValue().replace(/['\\]/g,'').split(',');
-            var lenSelectedRegions = form.aoiFieldSet.AreaSelector.getStore().getCount();
+            var selectedRegions, lenSelectedRegions;
+            var granType = this.form.output.aoiFieldSet.gran_type.getValue().inputValue;
+            if (granType == 'pakistan'){
+                selectedRegions = [granType];
+                lenSelectedRegions = selectedRegions.length;
+            }else{
+                selectedRegions = form.aoiFieldSet.selectedRegions.getValue().replace(/['\\]/g,'').split(',');
+                lenSelectedRegions = form.aoiFieldSet.AreaSelector.getStore().getCount();
+            }
+
             var colorRGB = nrl.chartbuilder.util.randomColorsRGB(lenSelectedRegions);
             var colorHEX = nrl.chartbuilder.util.randomColorsHEX(lenSelectedRegions);
 

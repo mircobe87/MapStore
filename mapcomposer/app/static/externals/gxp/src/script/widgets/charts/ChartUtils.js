@@ -230,5 +230,18 @@ nrl.chartbuilder.util = {
             month: month,
             dec: dek_in_month
         };
+    },
+    /**
+     * Adds 0s at the beginning to have a string of at least 'padding' characters
+     * n: 21, padding: 5 => return '00021'
+     */
+    zeroPadding: function(n, padding){
+        var nstr = n + '';
+        if (nstr.length < padding){
+            for(var i=padding-nstr.length; i>0; i--){
+                nstr = '0' + nstr;
+            }
+        }
+        return nstr;
     }
 };

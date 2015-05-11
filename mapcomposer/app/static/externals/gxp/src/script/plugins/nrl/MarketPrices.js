@@ -271,7 +271,6 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                 // used to select time options.
                 initTimeSelection: function() {
                     this.setAnnualMode();
-                    this.ownerCt.setShowNoDataInfo(true);
                 }
             }, { // YEAR compobox ---------------------------------------
                 name: 'year',
@@ -314,14 +313,40 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                         var records = this.ownerCt.crops.getSelections();
                         this.refOwner.updateSubmitBtnState();
                         this.ownerCt.submitButton.initChartOpt(this.ownerCt);
-                        //this.ownerCt.enableOptionsIfDataExists(records, granType);
                     },
                     regionsChange: function(s) {
                         var granType = this.gran_type.getValue().inputValue;
                         var records = this.ownerCt.crops.getSelections();
                         this.refOwner.updateSubmitBtnState();
                         this.ownerCt.submitButton.initChartOpt(this.ownerCt);
-                        //this.ownerCt.enableOptionsIfDataExists(records, granType);
+                    }
+                }
+            }, { // COMPARISON radio ------------------------------------
+                style: {
+                    marginTop: '6px'
+                },
+                fieldLabel: 'Comparision by',
+                xtype: 'radiogroup',
+                anchor: '100%',
+                autoHeight: true,
+                ref: 'comparisonby',
+                title: this.outputTypeText,
+                defaultType: 'radio',
+                disabled: false,
+                columns: 2,
+                items: [{
+                    boxLabel: 'Commodity',
+                    name: 'comparisonby',
+                    inputValue: 'commodity',
+                    checked: true
+                }, {
+                    boxLabel: 'Region',
+                    name: 'comparisonby',
+                    inputValue: 'region'
+                }],
+                listeners: {
+                    change: function(b){
+                        this.ownerCt.submitButton.initChartOpt(this.ownerCt);
                     }
                 }
             }, { // CROPS grid ------------------------------------------
@@ -376,23 +401,6 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                         else
                             timeWidgets[i].enable();
                 }
-            }, { // INFO fieldset ---------------------------------------
-                title: 'Note',
-                style: {
-                    marginTop: '12px',
-                },
-                xtype: 'fieldset',
-                ref: 'infofieldset',
-                anchor: '100%',
-                items: [{
-                    xtype: 'label',
-                    html: 'ok',
-                    ref: 'lbl'
-                }],
-                setInfo: function(html) {
-                    this.lbl.setText(html, false);
-                },
-                hidden: true
             }, { // PRICE OPTIONS fieldset ------------------------------
                 style: {
                     marginTop: '12px',
@@ -490,47 +498,19 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                         lbl.setText(currCombo.getRawValue() + '/' + denoCombo.getRawValue())
                     }
                 }
-            }, { // COMPARISON radio ------------------------------------
-                style: {
-                    marginTop: '6px'
-                },
-                fieldLabel: 'Comparision by',
-                xtype: 'radiogroup',
-                anchor: '100%',
-                autoHeight: true,
-                ref: 'comparisonby',
-                title: this.outputTypeText,
-                defaultType: 'radio',
-                disabled: false,
-                columns: 2,
-                items: [{
-                    boxLabel: 'Commodity',
-                    name: 'comparisonby',
-                    inputValue: 'commodity',
-                    checked: true
-                }, {
-                    boxLabel: 'Region',
-                    name: 'comparisonby',
-                    inputValue: 'region'
-                }],
-                listeners: {
-                    change: function(b){
-                        this.ownerCt.submitButton.initChartOpt(this.ownerCt);
-                    }
-                }
             }],
             listeners: {
-                ////////
-                afterlayout: function(f) { // this couple of handler is used with the
-                    if (f.isRendered) { // varible 'isRendered' to execute 'initTimeSelection()'
-                        f.isRendered = false; // only once at the beginning, when the form is show
-                        f.timerange.initTimeSelection(); // for the first time.
-                    } //
-                }, //
-                afterRender: function(f) { //
-                        f.isRendered = true; //
-                    } //
-                    ////////
+                                                    ////////
+                afterlayout: function(f) {                // this couple of handler is used with the
+                    if (f.isRendered) {                   // varible 'isRendered' to execute 'initTimeSelection()'
+                        f.isRendered = false;             // only once at the beginning, when the form is show
+                        f.timerange.initTimeSelection();  // for the first time.
+                    }                                     //
+                },                                        //
+                afterRender: function(f) {                //
+                        f.isRendered = true;              //
+                    }                                     //
+                                                    ////////
             },
             buttons: [{
                 url: this.dataUrl,
@@ -541,135 +521,11 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                 form: this,
                 disabled: true
             }],
-            noDataAlertWasShown: false,
-            showNoDataAlert: function() {
-                if (!this.noDataAlertWasShown) {
-                    //Ext.MessageBox.alert('No data available', 'There are not data available for this search criteria.');
-                    this.noDataAlertWasShown = true;
-                }
-            },
-            setShowNoDataInfo: function(b) {
-                if (b) {
-                    var gran_type = this.aoiFieldSet.gran_type.getValue().inputValue;
-                    var selectedFert = this.crops.getSelections();
-                    var fertList = [];
-                    for (var i = 0; i < selectedFert.length; i++) {
-                        fertList.push('<b>' + selectedFert[i].data.nutrient + '</b>');
-                    }
-                    var msg = "";
-                    if (fertList.length > 0)
-                        msg = 'There are not <b>' + (gran_type == 'pakistan' ? 'national' : gran_type) + '</b> data for the fertilizer' + (fertList.length > 1 ? 's' : '') + ': ' + fertList.join(', ');
-                    else {
-                        msg = 'There are not crops selected';
-                    }
-                    this.infofieldset.setInfo(msg);
-                    this.infofieldset.show();
-                } else {
-                    this.infofieldset.hide();
-                }
-            },
-            enableOptionsIfDataExists: function(records, granType) {
-                if (records.length == 0) {
-                    // there aren't crops selected.
-                    // all time-options should be disabled.
-                    this.crops.setDisabledTimeOptions(true);
-                    // the next selection of a fertilizer, if there aren't
-                    // data then an alert will show.
-                    this.noDataAlertWasShown = false;
-                    this.submitButton.disable();
-                    this.setShowNoDataInfo(true);
-                } else {
-                    // in this case, time-options should be initialized
-                    // with the shorter year renge for which the data
-                    // exist.
-                    // time-options must be enabled.
-                    this.crops.setDisabledTimeOptions(false);
-                    this.setShowNoDataInfo(false);
-                    if (this.aoiFieldSet.selectedRegions.getValue().length != 0 || granType == 'pakistan')
-                        this.submitButton.enable();
-                    else
-                        this.submitButton.disable();
-
-                    // computes min & max year given the area-option selected and
-                    // the crops.
-                    var oldest_year, newest_year;
-                    var oldests = [],
-                        newests = [];
-                    for (var i = 0; i < records.length; i++) {
-                        var record = records[i].data;
-
-                        switch (granType) {
-                            case 'province':
-                                {
-                                    if (record.oldest_prov_y) oldests.push(record.oldest_prov_y);
-                                    if (record.newest_prov_y) newests.push(record.newest_prov_y);
-                                }
-                                break;
-                            case 'district':
-                                {
-                                    if (record.oldest_dist_y) oldests.push(record.oldest_dist_y);
-                                    if (record.newest_dist_y) newests.push(record.newest_dist_y);
-                                }
-                                break;
-                            case 'pakistan':
-                                {
-                                    if (record.oldest_nat_y) oldests.push(record.oldest_nat_y);
-                                    if (record.newest_nat_y) newests.push(record.newest_nat_y);
-                                }
-                                break;
-                        }
-                    }
-                    oldest_year = oldests.length ? Math.min.apply(null, oldests) : undefined;
-                    newest_year = newests.length ? Math.max.apply(null, newests) : undefined;
-
-                    if (!oldest_year || !newest_year) {
-                        // there aren't data for this criteria
-                        this.crops.setDisabledTimeOptions(true);
-                        this.submitButton.disable();
-                        this.showNoDataAlert();
-                        this.setShowNoDataInfo(true);
-                    } else {
-                        // setup store for year combo
-                        var yearSelector = this.yearSelector;
-                        var years = [];
-                        for (var y = oldest_year; y <= newest_year; y++)
-                            years.push([y]);
-
-                        yearSelector.getStore().removeAll();
-                        yearSelector.getStore().loadData(years, false);
-                        yearSelector.setValue(oldest_year);
-
-                        // setup max and min for year range selector
-                        var yearRangeSelector = this.yearRangeSelector;
-                        var currentMax = yearRangeSelector.endValue.getValue();
-                        var currentMin = yearRangeSelector.startValue.getValue();
-
-                        // avoids validation error
-                        if (oldest_year > currentMin) {
-                            yearRangeSelector.setMaxValue(newest_year);
-                            yearRangeSelector.setMinValue(oldest_year);
-                        } else {
-                            yearRangeSelector.setMinValue(oldest_year);
-                            yearRangeSelector.setMaxValue(newest_year);
-                        }
-                    }
-                }
-            },
             // set the max and min values for
             //  - yearRangeSelector
             //  - monthRangeSelector
             //  - yearSelector
             setUpMaxAndMin: function(records) {
-
-                // it computes the largest absolute-decade range which contains
-                // data for all crops selected.
-                //var startRange = Number.MIN_SAFE_INTEGER;
-                //var endRange = Number.MAX_SAFE_INTEGER;
-                //for (var rIndex = 0; rIndex < records.length; rIndex++) {
-                //    var recData = records[rIndex].data;
-                //    startRange = recData.min_dec_abs > startRange ? recData.min_dec_abs : startRange;
-                //    endRange = recData.max_dec_abs < endRange ? recData.max_dec_abs : endRange;
-                //}
 
                 var startRange = Number.MAX_SAFE_INTEGER;
                 var endRange = Number.MIN_SAFE_INTEGER;

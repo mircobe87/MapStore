@@ -82,7 +82,14 @@
 				    "dataUrl": "http://84.33.2.75/geoserver/ndvi/ows",
 					"layer": "ndvi:ndvi"
 				}
-            }           
+            },
+             "createupdatelayer":{
+                "xtype":"geobatch_run_local_form",
+                "baseDir": "/home/geosolutions/admin",
+                "fileBrowserUrl": "mvc/fileManager/extJSbrowser",
+                "fileRegex": "\\.zip$",
+                "path":"/shapes/"
+            },
          },
          "actionTarget":{
            "target": "north.tbar",

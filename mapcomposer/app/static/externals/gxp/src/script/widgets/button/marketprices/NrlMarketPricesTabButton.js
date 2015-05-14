@@ -85,6 +85,7 @@ gxp.widgets.button.NrlMarketPricesTabButton = Ext.extend(Ext.Button, {
 
             // gets the list of selected regions
             var region_list = form.aoiFieldSet.selectedRegions.getValue();
+            region_list = region_list.replace("'KHYBER PAKHTUNKHWA'","'FATA'\\,'KPK'");
             form.submitButton.queryOptions.region_list = region_list;
 
             var currency;
@@ -300,6 +301,7 @@ gxp.widgets.button.NrlMarketPricesTabButton = Ext.extend(Ext.Button, {
                     dataIndex: 'province',
                     hidden: (gran_type == 'province'),
                     renderer: function(value){
+                        value = (value == 'KPK' ? 'KHYBER PAKHTUNKHWA' : value);
                         return nrl.chartbuilder.util.toTitleCase(value);
                     }
                 },{
@@ -309,6 +311,7 @@ gxp.widgets.button.NrlMarketPricesTabButton = Ext.extend(Ext.Button, {
                     name: 'region',
                     dataIndex: 'region',
                     renderer: function(value){
+                        value = (value == 'KPK' ? 'KHYBER PAKHTUNKHWA' : value);
                         return nrl.chartbuilder.util.toTitleCase(value);
                     }
                 }

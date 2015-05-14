@@ -73,6 +73,18 @@
 				"displayInLayerSwitcher":false,
 				"visibility": false
 			},{
+                "source": "nrl",
+                "title": "nrl:district_select",
+                "name": "nrl:district_select",
+                "displayInLayerSwitcher":false,
+                "visibility": false
+            },{
+                "source": "nrl",
+                "title": "nrl:province_select",
+                "name": "nrl:province_select",
+                "displayInLayerSwitcher":false,
+                "visibility": false
+            },{
 				"source": "mapquest",
 				"title": "MapQuest OpenStreetMap",
 				"name": "osm",
@@ -137,7 +149,7 @@
 			},{
 				"source": "nrl",
 				"title": "Province Boundary",
-				"name": "nrl:province_boundary",
+				"name": "nrl:province_view",
 				"group": "Admin",
 				"visibility": true
 			},{
@@ -215,7 +227,7 @@
 			},{
 				"source": "nrl",
 				"title": "District Boundary",
-				"name": "nrl:district_boundary",
+				"name": "nrl:district_view",
 				"group": "Admin",
 				"visibility": true
 			},{
@@ -367,7 +379,12 @@
             "outputConfig":{
                 "id":"Fertilizers"
             },
-            "outputTarget":"nrl"
+            "outputTarget":"nrl",
+            "layers": {
+                "province": "nrl:province_select",
+                "district": "nrl:district_select"
+            },
+            "areaFilter": "province NOT IN ('DISPUTED TERRITORY','DISPUTED AREA')"
       },{
 		  "ptype":"nrl_report_crop_data",
           "cropPluginRef":"CropData",

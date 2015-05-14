@@ -240,6 +240,7 @@ gxp.widgets.button.NrlMarketPricesChartButton = Ext.extend(Ext.SplitButton, {
 
             // gets the list of selected regions
             var region_list = form.aoiFieldSet.selectedRegions.getValue();
+            region_list = region_list.replace("'KHYBER PAKHTUNKHWA'","'FATA'\\,'KPK'");
             form.submitButton.queryOptions.region_list = region_list;
 
             var currency;
@@ -385,6 +386,12 @@ gxp.widgets.button.NrlMarketPricesChartButton = Ext.extend(Ext.SplitButton, {
             } else {
                 selectedRegions = form.aoiFieldSet.selectedRegions.getValue().replace(/['\\]/g, '').split(',');
                 lenSelectedRegions = form.aoiFieldSet.AreaSelector.getStore().getCount();
+
+                var kpkIndex = selectedRegions.indexOf('KHYBER PAKHTUNKHWA');
+                if (kpkIndex != -1){
+                    selectedRegions.push('FATA');
+                    lenSelectedRegions++;
+                }
             }
 
             var colorRGB = nrl.chartbuilder.util.randomColorsRGB(lenSelectedRegions);
@@ -392,13 +399,13 @@ gxp.widgets.button.NrlMarketPricesChartButton = Ext.extend(Ext.SplitButton, {
 
             for (var i = 0; i < lenSelectedRegions; i++) {
                 var selReg = selectedRegions[i];
-                ret.series[selReg] = {
-                    name: nrl.chartbuilder.util.toTitleCase(selReg),
+                ret.series[selReg == 'KHYBER PAKHTUNKHWA' ? 'KPK' : selReg] = {
+                    name: (selReg == 'FATA' ? selReg : nrl.chartbuilder.util.toTitleCase(selReg)),
                     data: [],
                     color: colorHEX[i],
                     lcolor: 'rgb(' + colorRGB[i] + ')',
                     type: 'column',
-                    dataIndex: selReg,
+                    dataIndex: selReg == 'KHYBER PAKHTUNKHWA' ? 'KPK' : selReg,
                     unit: uomLabel
                 }
             }

@@ -40,6 +40,7 @@ nrl.chartbuilder.marketprces.commodity = {
         var data = [];
         var regionToDataIndex = {};
         var getChartTitle = function(gran_type, prov, dist) {
+            prov = (prov == 'KPK' ? 'KHYBER PAKHTUNKHWA' : prov);
             switch (gran_type) {
                 case 'province':
                     return prov;

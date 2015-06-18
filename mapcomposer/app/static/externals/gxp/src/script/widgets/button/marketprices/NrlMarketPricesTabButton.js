@@ -88,18 +88,32 @@ gxp.widgets.button.NrlMarketPricesTabButton = Ext.extend(Ext.Button, {
             region_list = region_list.replace("'KHYBER PAKHTUNKHWA'","'FATA'\\,'KPK'");
             form.submitButton.queryOptions.region_list = region_list;
 
-            var currency;
+            var currency; // identifies the column to query
+            var currencyOpt; // identifies the value obtained
+            var exrate; // exchange rate used to convert maketprices by the server
             switch (form.currency.getValue()) {
-                case 'usd':
-                    currency = 'market_price_usd';
-                    break;
-                case 'pkr':
+                case 'usd':{
+                    currencyOpt = 'market_price_usd';
+                    if (form.exchangeRateCheckBox.getValue().length != 0){
+                        currency = 'market_price_kpr';
+                        exrate = parseFloat(form.customExchangeRate.getValue());
+                    }else{
+                        currency = 'market_price_usd';
+                        exrate = 1;
+                    }
+                }break;
+                case 'pkr':{
                     currency = 'market_price_kpr';
-                    break;
-                default:
+                    currencyOpt = 'market_price_kpr';
+                    exrate = 1;
+                }break;
+                default:{
                     currency = 'market_price_usd';
+                    currencyOpt = 'market_price_usd';
+                    exrate = 1;
+                }
             }
-            form.submitButton.queryOptions.currency = currency;
+            form.submitButton.queryOptions.currency = currencyOpt;
 
             var factor = form.denominator.getValue();
             form.submitButton.queryOptions.factor = factor;
@@ -112,6 +126,7 @@ gxp.widgets.button.NrlMarketPricesTabButton = Ext.extend(Ext.Button, {
                     'start_abs_dec_year:' + start_abs_dec_year + ';' +
                     'end_abs_dec_year:' + end_abs_dec_year + ';' +
                     'currency:' + currency + ';' +
+                    'exRate:' + exrate + ';' +
                     'factor:' + factor + ';' +
                     'crop_list:' + crop_list + ';';
             } else {
@@ -119,6 +134,7 @@ gxp.widgets.button.NrlMarketPricesTabButton = Ext.extend(Ext.Button, {
                     'start_abs_dec_year:' + start_abs_dec_year + ';' +
                     'end_abs_dec_year:' + end_abs_dec_year + ';' +
                     'currency:' + currency + ';' +
+                    'exRate:' + exrate + ';' +
                     'factor:' + factor + ';' +
                     'crop_list:' + crop_list + ';' +
                     'region_list:' + region_list + ';' +

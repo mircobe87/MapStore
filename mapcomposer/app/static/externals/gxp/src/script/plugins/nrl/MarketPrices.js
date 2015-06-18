@@ -440,14 +440,83 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                     allowBlank: false,
                     value: this.defaultCurrency,
                     listeners: {
-                        'select': function() {
+                        'select': function(combo, record, index) {
                             this.ownerCt.fireEvent('afterlayout', this.ownerCt);
                             
+                            var selectedVal = combo.value;
+                            if (selectedVal == 'usd'){
+                                this.ownerCt.ownerCt.customExchangeRate.show();
+                                this.ownerCt.ownerCt.exchangeRateCheckBox.show();
+                                this.ownerCt.ownerCt.exchangeRateCheckBox.doLayout();
+                                this.ownerCt.hr.show();
+                            }else{
+                                this.ownerCt.ownerCt.customExchangeRate.hide();
+                                this.ownerCt.ownerCt.exchangeRateCheckBox.hide();
+                                this.ownerCt.hr.hide();
+                            }
+
                             var outputtype = this.ownerCt.ownerCt.outputType.getValue().inputValue;
                             if (outputtype != 'data')
                                 this.ownerCt.ownerCt.submitButton.initChartOpt(this.ownerCt.ownerCt);
                         }
                     }
+                }, {
+                    fieldLabel: 'Exchange Rate',
+                    xtype: 'checkboxgroup',
+                    anchor: '100%',
+                    autoHeight: true,
+                    ref: '../exchangeRateCheckBox',
+                    hidden: true,
+                    items: [{
+                        boxLabel: 'Custom',
+                        name: 'outputtype',
+                        inputValue: 'custom',
+                        checked: false
+                    }],
+                    listeners: {
+                        'change': function(c, checked) {
+                            var exchangeRateTxt = this.ownerCt.ownerCt.customExchangeRate;
+                            this.ownerCt.ownerCt.updateSubmitBtnState();
+                            if (checked.length != 0){
+                                // 'custom' checkbox is checked
+                                exchangeRateTxt.enable();
+                            }else{
+                                exchangeRateTxt.disable();
+                            }
+                        }
+                    }
+                }, {
+                    fieldLabel: 'PKR/USD',
+                    xtype: 'textfield',
+                    enableKeyEvents: true,
+                    anchor: '100%',
+                    ref: '../customExchangeRate',
+                    disabled: true,
+                    hidden: true,
+                    regex: /^[0-9]+$|^[0-9][.][0-9]+$|^[1-9][0-9]+[.][0-9]+$/i, //only match integer or float numbers.
+                    regexText: 'Invalid number',
+                    allowBlank: false,
+                    listeners: {
+                        'keyup': function(){
+                            this.refOwner.updateSubmitBtnState();
+                        },
+                        'change': function(textfield, value){
+                            this.setValue(isNaN(value) ? value : parseFloat(value));
+                        }
+                    }
+                }, {
+                    xtype: 'fieldset',
+                    ref: 'hr',
+                    style: {
+                        borderTop: '0',
+                        borderBottom: 'solid 1px #CCCCCC',
+                        borderLeft: '0',
+                        borderRight: '0',
+                        height: '1px',
+                        padding: '0 10px',
+                        marginTop: '8px'
+                    },
+                    hidden: true
                 }, {
                     xtype: 'combo',
                     fieldLabel: 'Denominator',
@@ -520,8 +589,8 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                 listeners: {
                     'afterlayout': function(fieldset) {
                         var currCombo = fieldset.getComponent(0);
-                        var denoCombo = fieldset.getComponent(1);
-                        var lbl = fieldset.getComponent(2);
+                        var denoCombo = fieldset.getComponent(4);
+                        var lbl = fieldset.getComponent(5);
                         lbl.setText(currCombo.getRawValue() + '/' + denoCombo.getRawValue())
                     }
                 }
@@ -616,8 +685,18 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                 var gran_type = this.aoiFieldSet.gran_type.getValue().inputValue;
                 var selectedCrops = this.crops.getSelections();
                 var regionList = this.aoiFieldSet.selectedRegions.getValue();
+                var exchangeRateOk;
+                if (this.currency.getValue() == 'usd'){
+                    if (this.exchangeRateCheckBox.getValue().length != 0){
+                        exchangeRateOk = this.customExchangeRate.getValue() != '' && this.customExchangeRate.validate();
+                    }else{
+                        exchangeRateOk = true;
+                    }
+                }else{
+                    exchangeRateOk = true;
+                }
 
-                var disableBtn = (selectedCrops.length == 0 || gran_type != 'pakistan' && regionList.length == 0);
+                var disableBtn = (!exchangeRateOk || selectedCrops.length == 0 || gran_type != 'pakistan' && regionList.length == 0);
                 this.submitButton.setDisabled(disableBtn);
             },
             outputMode: 'chart'

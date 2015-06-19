@@ -73,6 +73,18 @@
 				"displayInLayerSwitcher":false,
 				"visibility": false
 			},{
+                "source": "nrl",
+                "title": "nrl:district_select",
+                "name": "nrl:district_select",
+                "displayInLayerSwitcher":false,
+                "visibility": false
+            },{
+                "source": "nrl",
+                "title": "nrl:province_select",
+                "name": "nrl:province_select",
+                "displayInLayerSwitcher":false,
+                "visibility": false
+            },{
 				"source": "mapquest",
 				"title": "MapQuest OpenStreetMap",
 				"name": "osm",
@@ -137,7 +149,7 @@
 			},{
 				"source": "nrl",
 				"title": "Province Boundary",
-				"name": "nrl:province_boundary",
+				"name": "nrl:province_view",
 				"group": "Admin",
 				"visibility": true
 			},{
@@ -215,7 +227,7 @@
 			},{
 				"source": "nrl",
 				"title": "District Boundary",
-				"name": "nrl:district_boundary",
+				"name": "nrl:district_view",
 				"group": "Admin",
 				"visibility": true
 			},{
@@ -327,17 +339,25 @@
 		  "outputTarget":"nrl"
 	   },{
 	    "ptype":"nrl_agromet",
-            "layerStyle":{"strokeColor":"green","strokeWidth":1,"fillOpacity":0.2,"cursor":"pointer"}, 
+        "layerStyle":{
+            "strokeColor": "green",
+            "strokeWidth": 1,
+            "fillOpacity": 0.2,
+            "cursor": "pointer"
+        }, 
         "dataUrl":"http://84.33.2.75/geoserver/ows",
 		"factorsurl":"http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:agrometdescriptor&max&outputFormat=json",
 		"highChartExportUrl" :"http://84.33.2.75/highcharts-export/",
 		"areaFilter": "province NOT IN ('DISPUTED TERRITORY','DISPUTED AREA')",
 		"titleText": "Agromet Variables",
-		  "outputConfig":{
-			 "id":"Agromet"
-			 
-		  },
-		  "outputTarget":"nrl"
+		"outputConfig":{
+		    "id":"Agromet"
+		},
+		"outputTarget":"nrl",
+        "layers": {
+            "province": "nrl:province_select",
+            "district": "nrl:district_select"
+        }
 	  },{
 		"ptype":"nrl_crop_status",
             "layerStyle":{"strokeColor":"blue","strokeWidth":1,"fillOpacity":0.2,"cursor":"pointer"},

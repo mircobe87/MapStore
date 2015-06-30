@@ -35,51 +35,35 @@ Ext.namespace('nrl.chartbuilder');
  * makeChart(data, opt, customOpt, queryParams): return a array of HighCharts charts
  */
 nrl.chartbuilder.irrigation = {};
-nrl.chartbuilder.irrigation.commodity = {
+nrl.chartbuilder.irrigation.flow = {
     getData: function(json, granType) {
         var data = [];
-        var regionToDataIndex = {};
-        var getChartTitle = function(gran_type, prov, dist) {
-            prov = (prov == 'KPK' ? 'KHYBER PAKHTUNKHWA' : prov);
-            switch (gran_type) {
-                case 'province':
-                    return prov;
-                    break;
-                case 'district':
-                    return dist + ' (' + prov + ')';
-                    break;
-                case 'pakistan':
-                    return 'Pakistan';
-                    break;
-            }
-        };
+        var riverToDataIndex = {};
 
         // for each feature in json data...
         for (var i = 0; i < json.features.length; i++) {
             var feature = json.features[i].properties;
-            if (granType == 'pakistan')
-                feature.region = 'pakistan';
 
-            // gets an index form the data that it's relative (same region) to the
+            // gets an index from the data that it's relative (same river) to the
             // current feature i
-            var dataIndex = regionToDataIndex[feature.region];
+            var dataIndex = riverToDataIndex[feature.river];
 
             // if there is not entry (in data array) relative to the
-            // current feature, it creates one and push it in data array
-            // and store the data index in regionToDataIndex mapping-structure.
+            // current feature, it creates one, push it in data array
+            // and store the data index in riverToDataIndex mapping-structure.
             var chartData;
             if (dataIndex == undefined) {
                 chartData = {
-                    title: getChartTitle(granType, feature.province, feature.region),
+                    title: feature.river,
                     rows: []
                 };
-                regionToDataIndex[feature.region] = data.push(chartData) - 1;
+                riverToDataIndex[feature.river] = data.push(chartData) - 1;
             } else {
-                chartData = data[regionToDataIndex[feature.region]];
+                chartData = data[riverToDataIndex[feature.river]];
             }
 
             var rowEntry = undefined;
-            var parsedAbsDek = nrl.chartbuilder.util.getDekDate(feature.abs_dek);
+            var parsedAbsDek = nrl.chartbuilder.util.getDekDate(feature.abs_dec);
             var refStrDate = parsedAbsDek.year + '/' + parsedAbsDek.month + '/' + ((parsedAbsDek.dec - 1) * 10 + 1);
             var timeVal = new Date(refStrDate).getTime();
 
@@ -95,69 +79,9 @@ nrl.chartbuilder.irrigation.commodity = {
                 };
                 chartData.rows.push(rowEntry);
             }
-            rowEntry[feature.crop] = feature.value;
+            rowEntry[feature.river] = feature.waterflow;
         }
 
-
-        // it doesn't compute aggregated data if there is only one chart
-        if (data.length == 1) {
-            for (var i = 0; i < data.length; i++) {
-                var dataRows = data[i].rows;
-                dataRows.sort(function(r1, r2) {
-                    return r1.time - r2.time;
-                });
-            }
-            return data;
-        }
-
-        // creates a new data entry for the aggregate velues
-        var aggregated = {
-                title: 'aggregate',
-                rows: []
-            }
-            // this object maps time value on row index for aggregated data
-        var timeToRowIndex = {};
-
-        // for each dataEntry in data...
-        for (var d = 0; d < data.length; d++) {
-            var dataEntry = data[d];
-            // for each rowEntry in rows of the current data entry...
-            for (var r = 0; r < dataEntry.rows.length; r++) {
-                var rowEntry = dataEntry.rows[r];
-                // search for a row in aggregated that it has the same time value of current row
-                var aggregateRowIndex = timeToRowIndex[rowEntry.time];
-                var aggregateRowEntry;
-                if (aggregateRowIndex == undefined) {
-                    timeToRowIndex[rowEntry.time] = aggregated.rows.length;
-                    aggregated.rows.push({
-                        time: rowEntry.time
-                    });
-                    aggregateRowIndex = timeToRowIndex[rowEntry.time];
-                }
-                aggregateRowEntry = aggregated.rows[aggregateRowIndex];
-
-                // for each crop, it creates an array of value in order to compute average
-                for (var crop in rowEntry) {
-                    if (crop != 'time') {
-                        if (aggregateRowEntry[crop] == undefined)
-                            aggregateRowEntry[crop] = [];
-                        aggregateRowEntry[crop].push(rowEntry[crop]);
-                    }
-                }
-            }
-        }
-
-        // computes averages for each crops
-        for (var i = 0; i < aggregated.rows.length; i++) {
-            var row = aggregated.rows[i];
-            for (var crop in row) {
-                if (crop != 'time')
-                    row[crop] = row[crop].reduce(function(preAVG, x, preAVGItems) {
-                        return (preAVG * preAVGItems + x) / (preAVGItems + 1);
-                    }, 0);
-            }
-        }
-        data.push(aggregated);
         for (var i = 0; i < data.length; i++) {
             var dataRows = data[i].rows;
             dataRows.sort(function(r1, r2) {
@@ -166,7 +90,7 @@ nrl.chartbuilder.irrigation.commodity = {
         }
         return data;
     },
-    getChartConfig: function(opt, customOpt) {
+    getChartConfig: function(riverName, opt, customOpt) {
         var ret = {
             fields: [{
                 name: 'time',
@@ -176,10 +100,14 @@ nrl.chartbuilder.irrigation.commodity = {
             yAxis: [],
             plotOptions: customOpt.stackedCharts
         };
-
-        for (var crop in opt.series) {
-            ret.series.push(opt.series[crop]);
+        if (riverName != undefined){
+            ret.series.push(opt.series[riverName]);
+        }else{
+            for(var river in opt.series){
+                ret.series.push(opt.series[river]);
+            }
         }
+
         ret.yAxis = [{ // AREA
             title: {
                 text: customOpt.stackedCharts.series.stacking == 'percent' ? 'Percentage (%)' : customOpt.uomLabel
@@ -193,6 +121,11 @@ nrl.chartbuilder.irrigation.commodity = {
                 }
             }
         }];
+        //sort series in an array (lines on top, than bars then areas)
+        ret.series.sort(function(a,b){
+            //area,bar,line,spline are aphabetically ordered as we want
+            return a.type < b.type ? -1 : 1;
+        });
         return ret;
     },
     makeChart: function(data, opt, customOpt, queryParams) {
@@ -220,21 +153,21 @@ nrl.chartbuilder.irrigation.commodity = {
             var today = dd + '/' + mm + '/' + yyyy;
             info += '<span style="font-size:10px;">Date: ' + today + '</span><br />';
 
-            // build a list of aoi for the current chart.
-            var aoi = '';
-            var aoiList = [];
-            if (chartData[chartIndex].title == 'aggregate') {
-                for (var i = 0; i < chartIndex; i++) {
-                    aoiList.push(chartData[i].title);
+            // build a list of river for the current chart.
+            var river = '';
+            var riverList = [];
+            if(chartIndex == undefined || chartIndex < 0){
+                for(var i=0; i<chartData.length; i++){
+                    riverList.push(chartData[i].title);
                 }
-                aoi = aoiList.join(', ');
-            } else {
-                aoi = chartData[chartIndex].title;
+                info += '<span style="font-size:10px;">Rivers: ' + riverList.join(', ') + '</span><br />'
+            }else{
+                river = chartData[chartIndex].title;
+                info += '<span style="font-size:10px;">River: ' + river + '</span><br />'
             }
-            info += '<span style="font-size:10px;">Region: ' + aoi + '</span><br />'
 
-            var fromData = nrl.chartbuilder.util.getDekDate(queryParams.start_abs_dec_year);
-            var toData = nrl.chartbuilder.util.getDekDate(queryParams.end_abs_dec_year);
+            var fromData = nrl.chartbuilder.util.getDekDate(queryParams.from_abs_dec);
+            var toData = nrl.chartbuilder.util.getDekDate(queryParams.to_abs_dec);
             switch (queryParams.time_opt) {
                 case 'month':
                     {
@@ -261,16 +194,19 @@ nrl.chartbuilder.irrigation.commodity = {
         };
 
         var getChartTitle = function(chartData, chartIndex) {
-            var title = 'Market Prices: ';
-            var region = (chartData[chartIndex].title == 'aggregate' ? 'REGION' : chartData[chartIndex].title);
-            title += region;
+            var title = 'Water Flow: ';
+            var river = chartData[chartIndex].title;
+            title += river;
             return title;
         };
 
         var getXAxisLabel = function(xVal) {
             var mills = parseInt(xVal);
             var date = new Date(mills);
-            var lbl = date.dateFormat('M(Y)');
+            var monthStr = date.dateFormat('M');
+            var yearStr = date.dateFormat('(Y)');
+
+            var lbl = monthStr;
 
             if (queryParams.time_opt != 'month') {
                 var dayInMonth = parseInt(date.dateFormat('d'));
@@ -282,30 +218,28 @@ nrl.chartbuilder.irrigation.commodity = {
                 else
                     dec = 1;
 
-                lbl += ' dec-' + dec;
+                lbl += '-' + dec;
             }
-
+            lbl += '<br>' + yearStr;
             return lbl;
         };
 
         var charts = [];
 
         for (var r = 0; r < data.length; r++) {
+            var river = data[r].title;
             // defines fields for the store of the chart.
             var fields = [{
                 name: 'time',
                 type: 'string'
+            }, {
+                name: river,
+                type: 'float'
             }];
-            for (var crop in opt.series) {
-                fields.push({
-                    name: crop,
-                    type: 'float'
-                });
-            }
 
             // retreive chart configuration from plot options
             // chartConfig will contain configuration chart series and yAxis.
-            var chartConfig = this.getChartConfig(opt, customOpt);
+            var chartConfig = this.getChartConfig(river, opt, customOpt);
 
             var info = getChartInfo(data, r, queryParams);
             var chartTitle = getChartTitle(data, r);
@@ -352,7 +286,9 @@ nrl.chartbuilder.irrigation.commodity = {
                         labels: {
                             formatter: function() {
                                 return getXAxisLabel(this.value);
-                            }
+                            },
+                            rotation: -45,
+                            y: 24
                         }
                     }],
                     yAxis: chartConfig.yAxis,
@@ -377,10 +313,126 @@ nrl.chartbuilder.irrigation.commodity = {
             });
             charts.push(chart);
         }
+
+        if (data.length == 1) return charts;
+
+        var mergedData = this.mergeData(data);
+        var fields = [{
+            name: 'time',
+            type: 'string'
+        }];
+        for (var river in opt.series){
+            fields.push({
+                name: river,
+                type: 'float'
+            });
+        }
+        var store = new Ext.data.JsonStore({
+            data: mergedData,
+            fields: fields,
+            root: 'rows'
+        });
+        var mergedChartConfig = this.getChartConfig(undefined, opt, customOpt);
+        var info = getChartInfo(data, undefined, queryParams);
+
+        charts.push(new Ext.ux.HighChart({
+            series: mergedChartConfig.series,
+            height: opt.height,
+            store: store,
+            animShift: true,
+            xField: 'time',
+            chartConfig: {
+                chart: {
+                    zoomType: 'x',
+                    spacingBottom: 145
+                },
+                exporting: {
+                    enabled: true,
+                    width: 1200,
+                    url: customOpt.highChartExportUrl
+                },
+                title: {
+                    text: 'Water Flow: Rivers'
+                },
+                subtitle: {
+                    text: info,
+                    align: 'left',
+                    verticalAlign: 'bottom',
+                    useHTML: true,
+                    x: 30,
+                    y: 16
+                },
+                xAxis: [{
+                    type: 'datetime',
+                    categories: 'time',
+                    tickWidth: 0,
+                    gridLineWidth: 1,
+                    labels: {
+                        formatter: function() {
+                            return getXAxisLabel(this.value);
+                        },
+                        rotation: -45,
+                        y: 24
+                    }
+                }],
+                yAxis: mergedChartConfig.yAxis,
+                plotOptions: mergedChartConfig.plotOptions,
+                tooltip: {
+                    formatter: function() {
+                        var xVal = getXAxisLabel(this.x);
+                        var s = '<b>' + xVal + '</b>';
+
+                        Ext.each(this.points, function(i, point) {
+                            s += '<br/><span style="color:' + i.series.color + '">' + i.series.name + ': </span>' +
+                                '<span style="font-size:12px;">' + i.y.toFixed(2) + '</span>';
+                        });
+
+                        return s;
+                    },
+                    shared: true,
+                    crosshairs: true
+                }
+            },
+            info: info
+        }));
         return charts;
+    },
+    mergeData: function(data){
+        var ret = {
+            rows: [],
+            title: 'Rivers'
+        };
+        var timeMap = {};
+        var getIndexByTime = function(t){
+            return timeMap[t];
+        };
+        for(var i=0; i<data.length; i++){
+            var serie = data[i].rows;
+            for (var j=0; j<serie.length; j++){
+                var point = serie[j];
+                var x = point.time+'';
+                var yName;
+                for(var prop in point){
+                    yName = prop != 'time' ? prop : undefined;
+                }
+                var y = point[yName];
+
+                var index = getIndexByTime(x);
+                if (!index){
+                    ret.rows.push({
+                        time: parseInt(x)
+                    });
+                    timeMap[x] = ret.rows.length-1;
+                    index = ret.rows.length-1;
+                }
+                var entryToUpdate = ret.rows[index];
+                entryToUpdate[yName] = y;
+            }
+        }
+        return ret;
     }
 };
-nrl.chartbuilder.irrigation.region = {
+nrl.chartbuilder.irrigation.supply = {
     getData: function(json, granType) {
         var data = [];
         var cropToDataIndex = {};
@@ -410,7 +462,7 @@ nrl.chartbuilder.irrigation.region = {
             }
 
             var rowEntry = undefined;
-            var parsedAbsDek = nrl.chartbuilder.util.getDekDate(feature.abs_dek);
+            var parsedAbsDek = nrl.chartbuilder.util.getDekDate(feature.abs_dec);
             var refStrDate = parsedAbsDek.year + '/' + parsedAbsDek.month + '/' + ((parsedAbsDek.dec - 1) * 10 + 1);
             var timeVal = new Date(refStrDate).getTime();
 
@@ -463,6 +515,11 @@ nrl.chartbuilder.irrigation.region = {
                 }
             }
         }];
+        //sort series in an array (lines on top, than bars then areas)
+        ret.series.sort(function(a,b){
+            //area,bar,line,spline are aphabetically ordered as we want
+            return a.type < b.type ? -1 : 1;
+        });
         return ret;
     },
     makeChart: function(data, opt, customOpt, queryParams) {

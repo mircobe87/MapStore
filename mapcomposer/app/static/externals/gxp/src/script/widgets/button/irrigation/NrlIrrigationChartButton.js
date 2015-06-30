@@ -310,7 +310,6 @@ gxp.widgets.button.NrlIrrigationChartButton = Ext.extend(Ext.SplitButton, {
                 viewparams: viewparams
             },
             success: function(result, request) {
-                debugger;
                 try {
                     var jsonData = Ext.util.JSON.decode(result.responseText);
                 } catch (e) {
@@ -325,14 +324,14 @@ gxp.widgets.button.NrlIrrigationChartButton = Ext.extend(Ext.SplitButton, {
                 var customOpt = {
                     stackedCharts: this.stackedCharts,
                     highChartExportUrl: this.target.highChartExportUrl,
-                    uomLabel: this.refOwner.lblOutput.text
+                    uomLabel: "UNIT" //this.refOwner.lblOutput.text
                 };
 
                 var gran_type = this.refOwner.aoiFieldSet.gran_type.getValue().inputValue;
-                var comparisonby = this.refOwner.comparisonby.getValue().inputValue;
+                var sourceType = this.refOwner.source.getValue().inputValue;
 
-                var data = nrl.chartbuilder.irrigation[comparisonby].getData(jsonData, gran_type);
-                var charts = nrl.chartbuilder.irrigation[comparisonby].makeChart(data, this.chartOpt, customOpt, this.queryOptions);
+                var data = nrl.chartbuilder.irrigation[sourceType].getData(jsonData, gran_type);
+                var charts = nrl.chartbuilder.irrigation[sourceType].makeChart(data, this.chartOpt, customOpt, this.queryOptions);
 
                 var wins = gxp.WindowManagerPanel.Util.createChartWindows(charts, undefined);
                 gxp.WindowManagerPanel.Util.showInWindowManager(wins, this.tabPanel, this.targetTab, this.windowManagerOptions);
@@ -405,6 +404,7 @@ gxp.widgets.button.NrlIrrigationChartButton = Ext.extend(Ext.SplitButton, {
         }
 
         Ext.apply(options, ret);
+        console.log(ret);
         return ret;
     }
 });

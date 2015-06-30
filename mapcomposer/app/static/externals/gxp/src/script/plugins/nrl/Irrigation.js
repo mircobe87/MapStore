@@ -220,8 +220,8 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
 
                         this.output.submitButton.setDisabled(submitButtonState);
 
-                        //if (outputValue != 'data')
-                        //    this.output.submitButton.initChartOpt(this.output);
+                        if (outputValue != 'data')
+                            this.output.submitButton.initChartOpt(this.output);
                     },
                     scope: this
                 }
@@ -239,12 +239,12 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
                 disabled: false,
                 columns: 2,
                 items: [{
-                    boxLabel: 'Annual',
+                    boxLabel: 'Monthly',
                     name: 'timerange',
                     inputValue: 'annual',
                     checked: true
                 }, {
-                    boxLabel: 'Monthly',
+                    boxLabel: '10-Days Period',
                     name: 'timerange',
                     inputValue: 'monthly'
                 }],
@@ -377,8 +377,8 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
                         }
                         this.refOwner.updateSubmitBtnState();
                         var outputtype = this.refOwner.outputType.getValue().inputValue;
-                        //if (outputtype != 'data')
-                        //    this.refOwner.submitButton.initChartOpt(this.refOwner);
+                       if (outputtype != 'data')
+                           this.refOwner.submitButton.initChartOpt(this.refOwner);
                     }
                 }
             }, { // AOI selector ----------------------------------------
@@ -405,16 +405,16 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
                         
                         this.refOwner.updateSubmitBtnState();
                         this.refOwner.setUpMaxAndMin();
-                        //if (outputtype != 'data')
-                        //    this.ownerCt.submitButton.initChartOpt(this.ownerCt);
+                       if (outputtype != 'data')
+                           this.ownerCt.submitButton.initChartOpt(this.ownerCt);
                     },
                     regionsChange: function(s) {
                         var granType = this.gran_type.getValue().inputValue;
                         var outputtype = this.ownerCt.outputType.getValue().inputValue;
 
                         this.refOwner.updateSubmitBtnState();
-                        //if (outputtype != 'data')
-                        //    this.ownerCt.submitButton.initChartOpt(this.ownerCt);
+                       if (outputtype != 'data')
+                           this.ownerCt.submitButton.initChartOpt(this.ownerCt);
                     }
                 }
             }, { // RIVES grid ------------------------------------------
@@ -452,8 +452,8 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
                         this.output.updateSubmitBtnState();
 
                         var outputtype = this.output.outputType.getValue().inputValue;
-                        //if (outputtype != 'data')
-                        //    this.output.submitButton.initChartOpt(this.output);
+                       if (outputtype != 'data')
+                           this.output.submitButton.initChartOpt(this.output);
                     }
                 },
                 setDisabledTimeOptions: function(boolVal) {

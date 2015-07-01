@@ -203,20 +203,27 @@ gxp.widgets.button.NrlIrrigationChartButton = Ext.extend(Ext.SplitButton, {
                 // gets the options used in the query for grouping data
                 var time_opt = (form.timerange.getValue().inputValue == 'monthly' ? 'decade_year' : 'month');
 
-                var from_abs_dec, to_abs_dec, group_opt;
+                var from_abs_dec, to_abs_dec, group_opt, month_list = [];
+
+                from_abs_dec = form.yearRangeSelector.slider.getValues()[0] * 36 + 1; // jan_dek-1
+                to_abs_dec = form.yearRangeSelector.slider.getValues()[1] * 36 + 36; // dec_dek-3
+
                 switch (time_opt) {
                     case 'decade_year':
                         {
-                            var refYear = parseInt(form.yearSelector.getValue());
-                            from_abs_dec = (refYear - 1) * 36 + 3 * form.monthRangeSelector.slider.getValues()[0] + 1; // 1st dek of the selected month
-                            to_abs_dec = (refYear - 1) * 36 + 3 * form.monthRangeSelector.slider.getValues()[1] + 3; // 3rd dek of the selected month
+                            var fromMonth = form.monthRangeSelector.slider.getValues()[0];
+                            var toMonth = form.monthRangeSelector.slider.getValues()[1];
+                            for(var i=fromMonth; i<=toMonth; i++){
+                                month_list.push("'" + (nrl.chartbuilder.util.numberToMonthName(i+1)).toLowerCase() + "'");
+                            }
                             group_opt = '"decade_absolute"';
                         }
                         break;
                     case 'month':
                         {
-                            from_abs_dec = form.yearRangeSelector.slider.getValues()[0] * 36 + 1; // jan_dek-1
-                            to_abs_dec = form.yearRangeSelector.slider.getValues()[1] * 36 + 36; // dec_dek-3
+                            for(var i=0; i<12; i++){
+                                month_list.push("'" + (nrl.chartbuilder.util.numberToMonthName(i+1)).toLowerCase() + "'");
+                            }
                             group_opt = '"month"';
                         }
                 }
@@ -225,7 +232,8 @@ gxp.widgets.button.NrlIrrigationChartButton = Ext.extend(Ext.SplitButton, {
                     time_opt: time_opt,
                     group_opt: group_opt,
                     to_abs_dec: to_abs_dec,
-                    from_abs_dec: from_abs_dec
+                    from_abs_dec: from_abs_dec,
+                    month_list: month_list
                 }
             },
 
@@ -237,17 +245,19 @@ gxp.widgets.button.NrlIrrigationChartButton = Ext.extend(Ext.SplitButton, {
                 }
                 var river_list = riverList.join('\\,');
                 form.submitButton.queryOptions.river_list = riverList;
-                
+
                 var tOpts = this.getTimeOptions(form);
                 form.submitButton.queryOptions.time_opt = tOpts.time_opt;
                 form.submitButton.queryOptions.from_abs_dec = tOpts.from_abs_dec;
                 form.submitButton.queryOptions.to_abs_dec = tOpts.to_abs_dec;
                 form.submitButton.queryOptions.group_opt = tOpts.group_opt;
+                form.submitButton.queryOptions.month_list = tOpts.month_list.join('\\,');
 
                 return 'group_opt:' + tOpts.group_opt + ';' +
                        'river_list:' + river_list + ';' +
                        'to_abs_dec:' + tOpts.to_abs_dec + ';' +
-                       'from_abs_dec:' + tOpts.from_abs_dec + ';'
+                       'from_abs_dec:' + tOpts.from_abs_dec + ';' +
+                       'month_list:' + tOpts.month_list.join('\\,') + ';'
             },
             supply: function(form){
                 // gets the gran type parameter
@@ -265,13 +275,15 @@ gxp.widgets.button.NrlIrrigationChartButton = Ext.extend(Ext.SplitButton, {
                 form.submitButton.queryOptions.from_abs_dec = tOpts.from_abs_dec;
                 form.submitButton.queryOptions.to_abs_dec = tOpts.to_abs_dec;
                 form.submitButton.queryOptions.group_opt = tOpts.group_opt;
+                form.submitButton.queryOptions.month_list = tOpts.month_list.join('\\,');
 
                 return 'group_opt:' + tOpts.group_opt + ';' +
                        'to_abs_dec:' + tOpts.to_abs_dec + ';' +
                        'from_abs_dec:' + tOpts.from_abs_dec + ';' +
                        'region_list:' + region_list + ';' +
                        'gran_type:' + gran_type + ';' +
-                       'gran_type_str:' + gran_type_str + ';'
+                       'gran_type_str:' + gran_type_str + ';' +
+                       'month_list:' + tOpts.month_list.join('\\,') + ';'
             }
         };
 
@@ -345,66 +357,37 @@ gxp.widgets.button.NrlIrrigationChartButton = Ext.extend(Ext.SplitButton, {
     },
     initChartOpt: function(form) {
 
-        var source = form.source.getValue().inputValue;
-
         var ret = {
             height: 500,
             series: {}
         };
 
+        //one serie for each year in the interval
         var options = form.submitButton.chartOpt;
+
+        var fromYear = form.yearRangeSelector.slider.getValues()[0];
+        var toYear   = form.yearRangeSelector.slider.getValues()[1];
+        var numOfSeries = toYear - fromYear + 1;
+
+        var colorRGB = nrl.chartbuilder.util.randomColorsRGB(numOfSeries);
+        var colorHEX = nrl.chartbuilder.util.randomColorsHEX(numOfSeries);
+
         var uomLabel = "UNIT"; //form.lblOutput.text;
 
-        if (source == 'flow') {
-            // one serie for each selected river
-            var selectedRivers = form.riversGrid.getSelections();
-            var colorRGB = nrl.chartbuilder.util.randomColorsRGB(selectedRivers.length);
-            var colorHEX = nrl.chartbuilder.util.randomColorsHEX(selectedRivers.length);
-
-            for (var i = 0; i < selectedRivers.length; i++) {
-                var selRiver = selectedRivers[i];
-                ret.series[selRiver.data.river] = {
-                    name: nrl.chartbuilder.util.toTitleCase(selRiver.data.river),
-                    data: [],
-                    color: colorHEX[i],
-                    lcolor: 'rgb(' + colorRGB[i] + ')',
-                    type: 'column',
-                    dataIndex: selRiver.data.river,
-                    unit: uomLabel
-                }
-            }
-        } else {
-            // one serie for each selected region
-            var selectedRegions, lenSelectedRegions;
-            var granType = this.form.output.aoiFieldSet.gran_type.getValue().inputValue;
-            if (granType == 'pakistan') {
-                selectedRegions = [granType];
-                lenSelectedRegions = selectedRegions.length;
-            } else {
-                selectedRegions = form.aoiFieldSet.selectedRegions.getValue().replace(/['\\]/g, '').split(',');
-                lenSelectedRegions = form.aoiFieldSet.AreaSelector.getStore().getCount();
-            }
-
-            var colorRGB = nrl.chartbuilder.util.randomColorsRGB(lenSelectedRegions);
-            var colorHEX = nrl.chartbuilder.util.randomColorsHEX(lenSelectedRegions);
-
-            for (var i = 0; i < lenSelectedRegions; i++) {
-                var selReg = selectedRegions[i];
-
-                ret.series[selReg] = {
-                    name: selReg,
-                    data: [],
-                    color: colorHEX[i],
-                    lcolor: 'rgb(' + colorRGB[i] + ')',
-                    type: 'column',
-                    dataIndex: selReg,
-                    unit: uomLabel
-                }
+        for(var i=0; i<numOfSeries; i++){
+            var sName = fromYear + i + '';
+            ret.series[sName] = {
+                name: sName,
+                data: [],
+                color: colorHEX[i],
+                lcolor: 'rgb(' + colorRGB[i] + ')',
+                type: 'column',
+                dataIndex: sName,
+                unit: uomLabel
             }
         }
 
         Ext.apply(options, ret);
-        console.log(ret);
         return ret;
     }
 });

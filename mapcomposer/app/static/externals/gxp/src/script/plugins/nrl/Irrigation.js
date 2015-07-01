@@ -272,15 +272,11 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
                 },
                 // shows controllers for select a years range.
                 setAnnualMode: function() {
-                    this.ownerCt.yearRangeSelector.show();
-                    this.ownerCt.yearSelector.hide();
                     this.ownerCt.monthRangeSelector.hide();
                 },
                 // shows controller to select a month range
                 // from a selected reference year.
                 setMonthlyMode: function() {
-                    this.ownerCt.yearRangeSelector.hide();
-                    this.ownerCt.yearSelector.show();
                     this.ownerCt.monthRangeSelector.show();
                 },
                 // sets the initial state for the components
@@ -288,24 +284,25 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
                 initTimeSelection: function() {
                     this.setAnnualMode();
                 }
-            }, { // YEAR compobox ---------------------------------------
-                name: 'year',
-                disabled: false,
-                xtype: 'singleyearcombobox',
-                anchor: '100%',
-                ref: 'yearSelector',
-                disabled: false
-            }, { // MONTH range selector --------------------------------
-                ref: 'monthRangeSelector',
-                xtype: 'monthyearrangeselector',
-                anchor: '100%',
-                noCrossYear: false,
-                disabled: false
             }, { // YEAR range selector ---------------------------------
                 ref: 'yearRangeSelector',
                 xtype: 'yearrangeselector',
                 anchor: '100%',
-                disabled: false
+                disabled: false,
+                hidden: false,
+                listeners: {
+                    change: function(from, to){
+                        this.output.submitButton.initChartOpt(this.output);
+                    },
+                    scope: this
+                }
+            }, { // MONTH range selector --------------------------------
+                ref: 'monthRangeSelector',
+                xtype: 'monthyearrangeselector',
+                anchor: '100%',
+                noCrossYear: true,
+                disabled: false,
+                hidden: true
             }, { // SOURCE radio ----------------------------------------
                 style: {
                     marginTop: '6px'
@@ -529,55 +526,6 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
 
                 this.yearRangeSelector.slider.setValue(0, minYear);
                 this.yearRangeSelector.slider.setValue(1, maxYear);
-
-                // sets year values for yearSelector combobox
-                // if it's possible it keeps the previous selected year
-                var refYear = this.yearSelector.getValue();
-                this.yearSelector.setRange(minYear, maxYear);
-                if (refYear == '' || parseInt(refYear) > maxYear || parseInt(refYear) < minYear)
-                    this.yearSelector.setValue(maxYear);
-                else
-                    this.yearSelector.setValue(refYear);
-
-                // sets the range for monthRangeSelector
-                var currentRefYear = parseInt(this.yearSelector.getValue());
-                // the max and min absolute decades that can be selected by monthRangeSelector
-                // for the reference year choosen
-                var minDesiredAbsDec = (currentRefYear-1) * 36 +  1; // jan-dek1 of the previous year
-                var maxDesiredAbsDec =  currentRefYear    * 36 + 36; // dec-dek3 of the current  year
-
-                // sets the largest month range which contains data for the crops selected.
-                var minToSet, maxToSet;
-                if (startRange > minDesiredAbsDec)
-                    minToSet = nrl.chartbuilder.util.getDekDate(startRange);
-                else
-                    minToSet = nrl.chartbuilder.util.getDekDate(minDesiredAbsDec);
-
-                if (endRange < maxDesiredAbsDec)
-                    maxToSet = nrl.chartbuilder.util.getDekDate(endRange);
-                else
-                    maxToSet = nrl.chartbuilder.util.getDekDate(maxDesiredAbsDec);
-
-                var minMonth, maxMonth;
-                if (minToSet.year < currentRefYear)
-                    minMonth = minToSet.month-1;
-                else
-                    minMonth = minToSet.month-1 + 12;
-                if (maxToSet.year < currentRefYear)
-                    maxMonth = maxToSet.month-1;
-                else
-                    maxMonth = maxToSet.month-1 + 12;
-
-                if (this.monthRangeSelector.slider.getValues()[1] != maxMonth)
-                    this.monthRangeSelector.setValue(1, maxMonth);
-
-                if (maxMonth - minMonth < 12){
-                    if (this.monthRangeSelector.slider.getValues()[0] != minMonth)
-                        this.monthRangeSelector.setValue(0, minMonth);
-                }else{
-                    if (this.monthRangeSelector.slider.getValues()[1] != maxMonth-11)
-                        this.monthRangeSelector.setValue(0, maxMonth-11);
-                }
             },
             updateSubmitBtnState: function(){
                 var gran_type = this.aoiFieldSet.gran_type.getValue().inputValue;

@@ -104,10 +104,10 @@ nrl.chartbuilder.irrigation.commons = {
                 break;
             case 'decade_year':
                 {
-                    var from = nrl.chartbuilder.util.numberToMonthName(fromData.month);
-                    var to = nrl.chartbuilder.util.numberToMonthName(toData.month);
-
-                    info += '<span style="font-size:10px;">Time Range: ' + from + ' - ' + to + '</span><br />'
+                    var monthList = queryParams.month_list.replace(/[']/g,'').split('\\,');
+                    var from = monthList[0];
+                    var to = monthList[monthList.length-1];
+                    info += '<span style="font-size:10px;">Time Range: ' + nrl.chartbuilder.util.toTitleCase(from) + ' - ' + nrl.chartbuilder.util.toTitleCase(to) + '</span><br />'
                 }
                 break;
         }
@@ -262,7 +262,7 @@ nrl.chartbuilder.irrigation.flow = {
                         verticalAlign: 'bottom',
                         useHTML: true,
                         x: 30,
-                        y: 16
+                        y: 30
                     },
                     xAxis: [{
                         type: 'datetime',
@@ -293,6 +293,12 @@ nrl.chartbuilder.irrigation.flow = {
                         },
                         shared: true,
                         crosshairs: true
+                    },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'middle',
+                        borderWidth: 0
                     }
                 },
                 info: info
@@ -447,7 +453,7 @@ nrl.chartbuilder.irrigation.supply = {
                         verticalAlign: 'bottom',
                         useHTML: true,
                         x: 30,
-                        y: 16
+                        y: 30
                     },
                     xAxis: [{
                         type: 'datetime',
@@ -457,14 +463,16 @@ nrl.chartbuilder.irrigation.supply = {
                         labels: {
                             formatter: function() {
                                 return nrl.chartbuilder.irrigation.commons.getXAxisLabel(this.value, queryParams);
-                            }
+                            },
+                            rotation: -45,
+                            y: 24
                         }
                     }],
                     yAxis: chartConfig.yAxis,
                     plotOptions: chartConfig.plotOptions,
                     tooltip: {
                         formatter: function() {
-                            var xVal = nrl.chartbuilder.irrigation.commons.getXAxisLabel(this.value, queryParams);
+                            var xVal = nrl.chartbuilder.irrigation.commons.getXAxisLabel(this.x, queryParams);
                             var s = '<b>' + xVal + '</b>';
 
                             Ext.each(this.points, function(i, point) {
@@ -478,13 +486,10 @@ nrl.chartbuilder.irrigation.supply = {
                         crosshairs: true
                     },
                     legend: {
-                        labelFormatter: function() {
-                            if (this.name == 'Area (000 hectares)') {
-                                return 'Area (000 ha)';
-                            } else {
-                                return this.name;
-                            }
-                        }
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'middle',
+                        borderWidth: 0
                     }
                 },
                 info: info

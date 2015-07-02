@@ -507,10 +507,10 @@
             },
             "dataUrl": "http://84.33.2.75/geoserver/ows",
             "factorsurl": "http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:measure_units_for_crop&outputFormat=json",
+            "defaultUOMFlow":"1",
+            "defaultUOMSupply":"1",
             "metadataFlowUrl": "http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:irrigation_metadata_flow&outputFormat=json",
             "metadataSupplyUrl": "http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:irrigation_metadata_supply&outputFormat=json",
-            "dataFlowUrl": "http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:irrigation_data_flow&outputFormat=json",
-            "dataSupplyUrl": "http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:irrigation_data_supply&outputFormat=json",
             "highChartExportUrl": "http://84.33.2.75/highcharts-export/",
             "titleText": "Irrigation",
             "outputConfig": {

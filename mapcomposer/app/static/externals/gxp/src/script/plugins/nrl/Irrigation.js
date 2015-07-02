@@ -123,6 +123,31 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
         name: 'min_dec_abs',
         mapping: 'properties.min_dec_abs'
     }],
+    uomFields: [{
+        name: 'id',
+        mapping: 'properties.uid'
+    }, {
+        name: 'cid',
+        mapping: 'properties.cid'
+    }, {
+        name: 'cls',
+        mapping: 'properties.cls'
+    }, {
+        name: 'coefficient',
+        mapping: 'properties.coefficient'
+    }, {
+        name: 'description',
+        mapping: 'properties.description'
+    }, {
+        name: 'filter',
+        mapping: 'properties.filter'
+    }, {
+        name: 'name',
+        mapping: 'properties.name'
+    }, {
+        name: 'shortname',
+        mapping: 'properties.shortname'
+    }],
     radioQtipTooltip: "You have to be logged in to use this method",
     /**
      * api: method[addActions]
@@ -207,14 +232,6 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
                         this.output.fireEvent('update', store);
                         this.output.fireEvent('show');
 
-                        
-                        this.output.comparisonby.setDisabled(outputValue == 'data');
-                        if (outputValue == 'data'){
-                            this.output.comparisonby.oldValue = this.output.comparisonby.getValue().inputValue;
-                            this.output.comparisonby.setValue('commodity');
-                        }else{
-                            this.output.comparisonby.setValue(this.output.comparisonby.oldValue);
-                        }
                         this.output.doLayout();
                         this.output.syncSize();
 
@@ -292,7 +309,9 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
                 hidden: false,
                 listeners: {
                     change: function(from, to){
-                        this.output.submitButton.initChartOpt(this.output);
+                        var outputtype = this.output.outputType.getValue().inputValue;
+                        if (outputtype != 'data')
+                            this.output.submitButton.initChartOpt(this.output);
                     },
                     scope: this
                 }
@@ -333,6 +352,8 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
                     change: function(radioGroup, checked){
                         this.refOwner.aoiFieldSet.setVisible(checked.inputValue == 'supply');
                         this.refOwner.riversGrid.setVisible(checked.inputValue == 'flow');
+                        this.refOwner.uomFlow.setVisible(checked.inputValue == 'flow');
+                        this.refOwner.uomSupply.setVisible(checked.inputValue == 'supply');
                         // TODO: remove selection on map when river source is activate !
                         if (this.refOwner.metadata[checked.inputValue] == undefined){
                             // TODO: load metadata to init time selection controls
@@ -374,8 +395,8 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
                         }
                         this.refOwner.updateSubmitBtnState();
                         var outputtype = this.refOwner.outputType.getValue().inputValue;
-                       if (outputtype != 'data')
-                           this.refOwner.submitButton.initChartOpt(this.refOwner);
+                        if (outputtype != 'data')
+                            this.refOwner.submitButton.initChartOpt(this.refOwner);
                     }
                 }
             }, { // AOI selector ----------------------------------------
@@ -466,6 +487,77 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
                         else
                             timeWidgets[i].enable();
                 }
+            }, { // UOM fieldset ----------------------------------------
+                style: {
+                    marginTop: '12px',
+                },
+                xtype: 'fieldset',
+                title: 'Unit Of Measure',
+                items: [{
+                    xtype: 'combo',
+                    fieldLabel: 'Water Flow',
+                    editable: false,
+                    ref: '../uomFlow',
+                    anchor: '100%',
+                    store: new Ext.data.JsonStore({
+                        baseParams: {
+                            viewParams: 'class:waterflow'
+                        },
+                        fields: this.uomFields,
+                        autoLoad: true,
+                        url: this.factorsurl,
+                        root: 'features',
+                        idProperty: 'uid'
+                    }),
+                    displayField: 'shortname',
+                    valueField: 'coefficient',
+                    triggerAction: 'all',
+                    mode: 'local',
+                    autoLoad: true,
+                    allowBlank: false,
+                    value: this.defaultUOMFlow,
+                    hidden: false,
+                    listeners: {
+                        select: function(){
+                            var outputtype = this.ownerCt.ownerCt.outputType.getValue().inputValue;
+                            if (outputtype != 'data')
+                                this.ownerCt.ownerCt.submitButton.initChartOpt(this.ownerCt.ownerCt);
+                        },
+                        scope: this.refOwner
+                    }
+                }, {
+                    xtype: 'combo',
+                    fieldLabel: 'Water Supply',
+                    editable: false,
+                    ref: '../uomSupply',
+                    anchor: '100%',
+                    store: new Ext.data.JsonStore({
+                        baseParams: {
+                            viewParams: 'class:watersupply'
+                        },
+                        fields: this.uomFields,
+                        autoLoad: true,
+                        url: this.factorsurl,
+                        root: 'features',
+                        idProperty: 'uid'
+                    }),
+                    displayField: 'shortname',
+                    valueField: 'coefficient',
+                    triggerAction: 'all',
+                    mode: 'local',
+                    autoLoad: true,
+                    allowBlank: false,
+                    value: this.defaultUOMSupply,
+                    hidden: true,
+                    listeners: {
+                        select: function(){
+                            var outputtype = this.ownerCt.ownerCt.outputType.getValue().inputValue;
+                            if (outputtype != 'data')
+                                this.ownerCt.ownerCt.submitButton.initChartOpt(this.ownerCt.ownerCt);
+                        },
+                        scope: this.refOwner
+                    }
+                }]
             }],
             listeners: {
                                                     ////////

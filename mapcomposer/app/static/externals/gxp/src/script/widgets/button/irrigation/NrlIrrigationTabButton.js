@@ -43,159 +43,183 @@ gxp.widgets.button.NrlIrrigationTabButton = Ext.extend(Ext.Button, {
     text: 'Generate Table',
     queryOptions: {},
     handler: function () {
-        var getViewParams = function(form) {
-            // gets a list of selected crops
-            var cropsSelected = form.crops.getSelections();
-            var cropList = [];
-            for (var i = 0; i < cropsSelected.length; i++)
-                cropList.push('\'' + cropsSelected[i].data.crop + '\'');
-            var crop_list = cropList.join('\\,');
-            form.submitButton.queryOptions.crop_list = cropList;
+        var getViewParams = {
+            getTimeOptions: function(form){
+                // gets the options used in the query for grouping data
+                var time_opt = (form.timerange.getValue().inputValue == 'monthly' ? 'decade_year' : 'month');
 
-            // gets the options used in the query for grouping data
-            var time_opt = (form.timerange.getValue().inputValue == 'monthly' ? 'decade_year' : 'month');
-            form.submitButton.queryOptions.time_opt = time_opt;
+                var from_abs_dec, to_abs_dec, group_opt, month_list = [];
 
-            // set max & min time for query
-            var start_abs_dec_year, end_abs_dec_year;
-            switch (time_opt) {
-                case 'decade_year':
-                    {
-                        var refYear = parseInt(form.yearSelector.getValue());
-                        start_abs_dec_year = (refYear - 1) * 36 + 3 * form.monthRangeSelector.slider.getValues()[0] + 1; // 1st dek of the selected month
-                        end_abs_dec_year = (refYear - 1) * 36 + 3 * form.monthRangeSelector.slider.getValues()[1] + 3; // 3rd dek of the selected month
-                    }
-                    break;
-                case 'month':
-                    {
-                        start_abs_dec_year = form.yearRangeSelector.slider.getValues()[0] * 36 + 1; // jan_dek-1
-                        end_abs_dec_year = form.yearRangeSelector.slider.getValues()[1] * 36 + 36; // dec_dek-3
-                    }
-            }
+                from_abs_dec = form.yearRangeSelector.slider.getValues()[0] * 36 + 1; // jan_dek-1
+                to_abs_dec = form.yearRangeSelector.slider.getValues()[1] * 36 + 36; // dec_dek-3
 
-            form.submitButton.queryOptions.start_abs_dec_year = start_abs_dec_year;
-            form.submitButton.queryOptions.end_abs_dec_year = end_abs_dec_year;
-
-            // gets the gran type parameter
-            var gran_type = form.aoiFieldSet.gran_type.getValue().inputValue;
-            form.submitButton.queryOptions.gran_type = gran_type;
-
-            // gets the gran type parameter as string
-            //var gran_type_str = '\'' + gran_type + '\'';
-
-            // gets the list of selected regions
-            var region_list = form.aoiFieldSet.selectedRegions.getValue();
-            //region_list = region_list.replace("'KHYBER PAKHTUNKHWA'","'FATA'\\,'KPK'");
-            form.submitButton.queryOptions.region_list = region_list;
-
-            var currency; // identifies the column to query
-            var currencyOpt; // identifies the value obtained
-            var exrate; // exchange rate used to convert maketprices by the server
-            switch (form.currency.getValue()) {
-                case 'usd':{
-                    currencyOpt = 'market_price_usd';
-                    if (form.exchangeRateRadio.getValue().length != 0){
-                        currency = 'market_price_kpr';
-                        exrate = parseFloat(form.customExchangeRate.getValue());
-                    }else{
-                        currency = 'market_price_usd';
-                        exrate = 1;
-                    }
-                }break;
-                case 'pkr':{
-                    currency = 'market_price_kpr';
-                    currencyOpt = 'market_price_kpr';
-                    exrate = 1;
-                }break;
-                default:{
-                    currency = 'market_price_usd';
-                    currencyOpt = 'market_price_usd';
-                    exrate = 1;
+                switch (time_opt) {
+                    case 'decade_year':
+                        {
+                            var fromMonth = form.monthRangeSelector.slider.getValues()[0];
+                            var toMonth = form.monthRangeSelector.slider.getValues()[1];
+                            for(var i=fromMonth; i<=toMonth; i++){
+                                month_list.push("'" + (nrl.chartbuilder.util.numberToMonthName(i+1)).toLowerCase() + "'");
+                            }
+                            group_opt = '"decade_absolute"';
+                        }
+                        break;
+                    case 'month':
+                        {
+                            for(var i=0; i<12; i++){
+                                month_list.push("'" + (nrl.chartbuilder.util.numberToMonthName(i+1)).toLowerCase() + "'");
+                            }
+                            group_opt = '"month"';
+                        }
                 }
-            }
-            form.submitButton.queryOptions.currency = currencyOpt;
 
-            var factor = form.denominator.getValue();
-            form.submitButton.queryOptions.factor = factor;
+                return {
+                    time_opt: time_opt,
+                    group_opt: group_opt,
+                    to_abs_dec: to_abs_dec,
+                    from_abs_dec: from_abs_dec,
+                    month_list: month_list
+                }
+            },
 
-            form.submitButton.queryOptions.comparisonby = form.comparisonby.getValue().inputValue;
-            form.submitButton.queryOptions.priceUOM = form.lblOutput.text;
+            flow: function(form){
+                form.submitButton.queryOptions.source_type = 'flow';
 
-            if (gran_type == 'pakistan') {
-                return 'time_opt:' + time_opt + ';' +
-                    'start_abs_dec_year:' + start_abs_dec_year + ';' +
-                    'end_abs_dec_year:' + end_abs_dec_year + ';' +
-                    'currency:' + currency + ';' +
-                    'exRate:' + exrate + ';' +
-                    'factor:' + factor + ';' +
-                    'crop_list:' + crop_list + ';';
-            } else {
-                return 'time_opt:' + time_opt + ';' +
-                    'start_abs_dec_year:' + start_abs_dec_year + ';' +
-                    'end_abs_dec_year:' + end_abs_dec_year + ';' +
-                    'currency:' + currency + ';' +
-                    'exRate:' + exrate + ';' +
-                    'factor:' + factor + ';' +
-                    'crop_list:' + crop_list + ';' +
-                    'region_list:' + region_list + ';' +
-                    'gran_type:' + gran_type + ';';
+                var selectedRivers = form.riversGrid.getSelections();
+                var riverList = [];
+                for (var i = 0; i < selectedRivers.length; i++){
+                    riverList.push('\'' + selectedRivers[i].data.river + '\'');
+                }
+                var river_list = riverList.join('\\,');
+                form.submitButton.queryOptions.river_list = riverList;
+
+                var factor = form.uomFlow.getValue();
+                var uomLabel = form.uomFlow.getRawValue();
+                form.submitButton.queryOptions.factor = factor;
+                form.submitButton.queryOptions.uomLabel = uomLabel;
+
+                var tOpts = this.getTimeOptions(form);
+                form.submitButton.queryOptions.time_opt = tOpts.time_opt;
+                form.submitButton.queryOptions.from_abs_dec = tOpts.from_abs_dec;
+                form.submitButton.queryOptions.to_abs_dec = tOpts.to_abs_dec;
+                form.submitButton.queryOptions.group_opt = tOpts.group_opt;
+                form.submitButton.queryOptions.month_list = tOpts.month_list.join('\\,');
+
+                return 'group_opt:' + tOpts.group_opt + ';' +
+                       'river_list:' + river_list + ';' +
+                       'to_abs_dec:' + tOpts.to_abs_dec + ';' +
+                       'from_abs_dec:' + tOpts.from_abs_dec + ';' +
+                       'month_list:' + tOpts.month_list.join('\\,') + ';' +
+                       'factor:' + factor + ';'
+            },
+            supply: function(form){
+                form.submitButton.queryOptions.source_type = 'supply';
+                // gets the gran type parameter
+                var gran_type = form.aoiFieldSet.gran_type.getValue().inputValue;
+                form.submitButton.queryOptions.gran_type = gran_type;
+
+                var gran_type_str = '\'' + gran_type + '\'';
+                form.submitButton.queryOptions.gran_type_str = gran_type_str;
+
+                var region_list = form.aoiFieldSet.selectedRegions.getValue();
+                form.submitButton.queryOptions.region_list = region_list;
+
+                var factor = form.uomFlow.getValue();
+                var uomLabel = form.uomFlow.getRawValue();
+                form.submitButton.queryOptions.factor = factor;
+                form.submitButton.queryOptions.uomLabel = uomLabel;
+
+                var tOpts = this.getTimeOptions(form);
+                form.submitButton.queryOptions.time_opt = tOpts.time_opt;
+                form.submitButton.queryOptions.from_abs_dec = tOpts.from_abs_dec;
+                form.submitButton.queryOptions.to_abs_dec = tOpts.to_abs_dec;
+                form.submitButton.queryOptions.group_opt = tOpts.group_opt;
+                form.submitButton.queryOptions.month_list = tOpts.month_list.join('\\,');
+
+                return 'group_opt:' + tOpts.group_opt + ';' +
+                       'to_abs_dec:' + tOpts.to_abs_dec + ';' +
+                       'from_abs_dec:' + tOpts.from_abs_dec + ';' +
+                       'region_list:' + region_list + ';' +
+                       'gran_type:' + gran_type + ';' +
+                       'gran_type_str:' + gran_type_str + ';' +
+                       'month_list:' + tOpts.month_list.join('\\,') + ';' +
+                       'factor:' + factor + ';'
             }
         };
-        var getTypeName = function(granType) {
-            if (granType == 'pakistan')
-                return 'nrl:marketprices_data_pakistan';
+
+        var getTypeName = function(sourceType) {
+            if (sourceType == 'flow')
+                return 'nrl:irrigation_data_flow';
             else
-                return 'nrl:marketprices_data';
+                return 'nrl:irrigation_data_supply';
         };
-        var getPropertyName = function(granType) {
-            if (granType == 'pakistan') {
-                return 'crop,abs_dek,value';
+
+        var getPropertyName = function(sourceType) {
+            if (sourceType == 'flow') {
+                return 'river,abs_dec,waterflow';
             } else {
-                return 'province,region,crop,abs_dek,value';
+                return 'province,district,abs_dec,withdrawal';
             }
-        };
-
-        var viewparams = getViewParams(this.refOwner);
-        var typeName = getTypeName(this.queryOptions.gran_type);
-        var propertyName = getPropertyName(this.queryOptions.gran_type);
-
-        var storeConf = {
-            url: this.url,
-            root: 'features',
-            fields: [
-                {name: 'abs_dek',  mapping: 'properties.abs_dek' },
-                {name: 'crop',     mapping: 'properties.crop'    },
-                {name: 'value',    mapping: 'properties.value'   }
-            ]
-        };
-
-        if (this.queryOptions.gran_type != 'pakistan'){
-            storeConf.fields.push({name: 'province', mapping: 'properties.province'});
-            storeConf.fields.push({name: 'region',   mapping: 'properties.region'  });
         }
 
-        var store = new Ext.data.JsonStore(storeConf);
+        var sourceType = this.refOwner.source.getValue().inputValue;
+
+        var viewparams = getViewParams[sourceType](this.refOwner);
+        var typeName = getTypeName(sourceType);
+        var propertyName = getPropertyName(sourceType);
+
+        var storeConf = {
+            flow: {
+                url: this.url,
+                root: 'features',
+                fields: [
+                    {name: 'river',     mapping: 'properties.river'    },
+                    {name: 'abs_dec',   mapping: 'properties.abs_dec'  },
+                    {name: 'waterflow', mapping: 'properties.waterflow'}
+                ]
+            },
+            supply: {
+                url: this.url,
+                root: 'features',
+                fields: [
+                    {name: 'province',   mapping: 'properties.province'   },
+                    {name: 'district',   mapping: 'properties.district'   },
+                    {name: 'abs_dec',    mapping: 'properties.abs_dec'    },
+                    {name: 'withdrawal', mapping: 'properties.withdrawal' }
+                ]
+            }
+        };
+
+        var store = new Ext.data.JsonStore(storeConf[sourceType]);
 
         store.load({
             callback: function(records, req){
                 var pNameList = req.params.propertyName.split(',');
                 // removes the property that will be empty
-                if (this.queryOptions.gran_type == 'province')
-                    pNameList.remove('province');
+                if (this.queryOptions.source_type == 'supply' && this.queryOptions.gran_type == 'province')
+                    pNameList.remove('district');
 
                 // sets the property name for the csv exporting query
                 store.exportParams = req.params;
                 store.exportParams.propertyName = pNameList.join(',');
 
                 var sortRules;
-                if (this.queryOptions.gran_type == 'pakistan')
-                    sortRules = [{field: 'crop', direction: 'ASC'},{field: 'abs_dek', direction: 'ASC'}];
-                else
-                    sortRules = [
-                        {field: 'crop', direction: 'ASC'},
-                        {field: 'region', direction: 'ASC'},
-                        {field: 'abs_dek', direction: 'ASC'}
-                    ];
+                if(this.queryOptions.source_type == 'flow'){
+                    sortRules = [{field: 'river', direction: 'ASC'},{field: 'abs_dek', direction: 'ASC'}];
+                }else{
+                    if (this.queryOptions.gran_type == 'province'){
+                        sortRules = [
+                            {field: 'province', direction: 'ASC'},
+                            {field: 'abs_dec', direction: 'ASC'}
+                        ];
+                    }else{
+                        sortRules = [
+                            {field: 'province', direction: 'ASC'},
+                            {field: 'district', direction: 'ASC'},
+                            {field: 'abs_dec', direction: 'ASC'}
+                        ];
+                    }
+                }
                 store.sort(sortRules);
 
                 this.createResultPanel(store, this.queryOptions);
@@ -231,108 +255,138 @@ gxp.widgets.button.NrlIrrigationTabButton = Ext.extend(Ext.Button, {
             }
             return nstr;
         };
-        var getChartInfo = function(aoiList, queryParams){
+        var getChartInfo = function(chartData, chartIndex, queryParams, sourceType) {
+            var subjectLabel = sourceType == 'flow' ? 'River' : 'Region';
             var info = '<span style="font-size:10px;">Source: Pakistan Crop Portal</span><br />';
 
             // 'today' will contain the current date in dd/mm/yyyy format
             var now = new Date();
-            var dd = zeroPadding(now.getDate(), 2);
-            var mm = zeroPadding(now.getMonth()+1, 2); //January is 0!
+            var dd = nrl.chartbuilder.util.zeroPadding(now.getDate(), 2);
+            var mm = nrl.chartbuilder.util.zeroPadding(now.getMonth() + 1, 2); //January is 0!
             var yyyy = now.getFullYear();
             var today = dd + '/' + mm + '/' + yyyy;
-            info += '<span style="font-size:10px;">Date: '+ today +'</span><br />';
+            info += '<span style="font-size:10px;">Date: ' + today + '</span><br />';
 
-            // build a list of aoi for the current chart.
-            var aoi = '';
-            if (queryParams.gran_type == 'pakistan'){
-                aoi += 'Pakistan';
+            // build a list of river for the current chart.
+            var subject = '';
+            var subjectList = [];
+            if(chartIndex == undefined || chartIndex < 0){
+                for(var i=0; i<chartData.length; i++){
+                    subjectList.push(chartData[i].title);
+                }
+                info += '<span style="font-size:10px;">' + subjectLabel + 's: ' + subjectList.join(', ') + '</span><br />'
             }else{
-                aoi = aoiList.join(', ');
+                subject = chartData[chartIndex].title;
+                info += '<span style="font-size:10px;">' + subjectLabel + ': ' + subject + '</span><br />'
             }
-            
-            info += '<span style="font-size:10px;">Region: '+ aoi + '</span><br />'
 
-            switch (queryParams.timerange){
-                case 'annual': {
-                    var fromYear = queryParams.from_year;
-                    var toYear = queryParams.to_year;
-                    info += '<span style="font-size:10px;">Years: '+ fromYear + '-' + toYear + '</span><br />'
-                }break;
-                case 'monthly': {
-                    var referenceYear = queryParams.from_year;
-                    info += '<span style="font-size:10px;">Year: '+ referenceYear + '</span><br />'
+            var fromData = nrl.chartbuilder.util.getDekDate(queryParams.from_abs_dec);
+            var toData = nrl.chartbuilder.util.getDekDate(queryParams.to_abs_dec);
+            switch (queryParams.time_opt) {
+                case 'month':
+                    {
+                        var fromYear = fromData.year;
+                        var toYear = toData.year;
+                        if (toYear - fromYear == 0) {
+                            info += '<span style="font-size:10px;">Year: ' + fromYear + '</span><br />';
+                        } else {
+                            info += '<span style="font-size:10px;">Years: ' + fromYear + ' - ' + toYear + '</span><br />';
+                        }
+                    }
+                    break;
+                case 'decade_year':
+                    {
+                        var from = nrl.chartbuilder.util.numberToMonthName(fromData.month);
+                        var to = nrl.chartbuilder.util.numberToMonthName(toData.month);
 
-                    var fromMonth = nrl.chartbuilder.util.numberToMonthName(queryParams.from_month);
-                    var toMonth = nrl.chartbuilder.util.numberToMonthName(queryParams.to_month);
-                    info += '<span style="font-size:10px;">Months: '+ fromMonth + '-' + toMonth + '</span><br />'
-                }break;
+                        info += '<span style="font-size:10px;">Time Range: ' + from + ' - ' + to + '</span><br />'
+                    }
+                    break;
             }
 
             return info;
         };
 
         var tabs = Ext.getCmp(this.targetTab);
-        var gridCols = [
-            {
-                sortable: true,
-                id: 'crop',
-                header:'Crop',
-                name: 'crop',
-                dataIndex: 'crop',
-                renderer: function(value){
-                    return nrl.chartbuilder.util.toTitleCase(value);
-                }
-            },{
-                sortable: true,
-                id: 'abs_dek',
-                header:'Data',
-                name: 'abs_dek',
-                dataIndex: 'abs_dek',
-                renderer: function(value){
-                    var parsedDate = nrl.chartbuilder.util.getDekDate(value);
-                    var outputStr = parsedDate.year + ' ' + nrl.chartbuilder.util.numberToMonthName(parsedDate.month);
-                    if (queryOptions.time_opt != "month"){
-                        outputStr += ' - dec ' + parsedDate.dec;
+        var gridCols = {
+            flow: [
+                {
+                    sortable: true,
+                    id: 'river',
+                    header:'River',
+                    name: 'river',
+                    dataIndex: 'river',
+                    renderer: function(value){
+                        return nrl.chartbuilder.util.toTitleCase(value);
                     }
-                    return outputStr;
+                },{
+                    sortable: true,
+                    id: 'abs_dec',
+                    header:'Data',
+                    name: 'abs_dec',
+                    dataIndex: 'abs_dec',
+                    renderer: function(value){
+                        var parsedDate = nrl.chartbuilder.util.getDekDate(value);
+                        var outputStr = parsedDate.year + ' ' + nrl.chartbuilder.util.numberToMonthName(parsedDate.month);
+                        if (queryOptions.time_opt != "month"){
+                            outputStr += ' - dec ' + parsedDate.dec;
+                        }
+                        return outputStr;
+                    }
+                },{
+                    sortable: true,
+                    id: 'waterflow',
+                    header:'Water Flow (' + queryOptions.uomLabel + ')',
+                    name: 'waterflow',
+                    //width:50,
+                    dataIndex: 'waterflow',
+                    renderer: Ext.util.Format.numberRenderer('0.000')
                 }
-            },{
-                sortable: true,
-                id: 'value',
-                header:'Price (' + queryOptions.priceUOM + ')',
-                name: 'value',
-                //width:50,
-                dataIndex: 'value',
-                renderer: Ext.util.Format.numberRenderer('0.00')
-            }
-        ];
-
-        if (gran_type != 'pakistan'){
-            gridCols.splice(2,0,
+            ],
+            supply: [
                 {
                     sortable: true,
                     id: 'province',
                     header:'Province',
                     name: 'province',
                     dataIndex: 'province',
-                    hidden: (gran_type == 'province')/*,
                     renderer: function(value){
-                        value = (value == 'KPK' ? 'KHYBER PAKHTUNKHWA' : value);
                         return nrl.chartbuilder.util.toTitleCase(value);
-                    }*/
+                    }
                 },{
                     sortable: true,
-                    id: 'region',
-                    header:(gran_type == 'district' ? 'District' : 'Province'),
-                    name: 'region',
-                    dataIndex: 'region'/*,
+                    id: 'district',
+                    header:'District',
+                    name: 'district',
+                    dataIndex: 'district',
                     renderer: function(value){
-                        value = (value == 'KPK' ? 'KHYBER PAKHTUNKHWA' : value);
                         return nrl.chartbuilder.util.toTitleCase(value);
-                    }*/
+                    }
+                },{
+                    sortable: true,
+                    id: 'abs_dec',
+                    header:'Data',
+                    name: 'abs_dec',
+                    dataIndex: 'abs_dec',
+                    renderer: function(value){
+                        var parsedDate = nrl.chartbuilder.util.getDekDate(value);
+                        var outputStr = parsedDate.year + ' ' + nrl.chartbuilder.util.numberToMonthName(parsedDate.month);
+                        if (queryOptions.time_opt != "month"){
+                            outputStr += ' - dec ' + parsedDate.dec;
+                        }
+                        return outputStr;
+                    }
+                },{
+                    sortable: true,
+                    id: 'watersupply',
+                    header:'Water Supply (' + queryOptions.uomLabel + ')',
+                    name: 'watersupply',
+                    //width:50,
+                    dataIndex: 'watersupply',
+                    renderer: Ext.util.Format.numberRenderer('0.000')
                 }
-            );
-        }
+            ]
+        };
 
         var grid = new Ext.grid.GridPanel({
             bbar:["->",
@@ -360,7 +414,7 @@ gxp.widgets.button.NrlIrrigationTabButton = Ext.extend(Ext.Button, {
             store: store,
             autoExpandColumn: 'value',
             title: '',
-            columns: gridCols
+            columns: gridCols[queryOptions.source_type]
         });
 
         var tabelTitle = 'Irrigation: ';

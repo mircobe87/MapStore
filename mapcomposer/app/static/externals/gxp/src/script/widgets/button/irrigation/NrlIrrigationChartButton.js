@@ -238,6 +238,8 @@ gxp.widgets.button.NrlIrrigationChartButton = Ext.extend(Ext.SplitButton, {
             },
 
             flow: function(form){
+                form.submitButton.queryOptions.source_type = 'flow';
+
                 var selectedRivers = form.riversGrid.getSelections();
                 var riverList = [];
                 for (var i = 0; i < selectedRivers.length; i++){
@@ -245,6 +247,11 @@ gxp.widgets.button.NrlIrrigationChartButton = Ext.extend(Ext.SplitButton, {
                 }
                 var river_list = riverList.join('\\,');
                 form.submitButton.queryOptions.river_list = riverList;
+
+                var factor = form.uomFlow.getValue();
+                var uomLabel = form.uomFlow.getRawValue();
+                form.submitButton.queryOptions.factor = factor;
+                form.submitButton.queryOptions.uomLabel = uomLabel;
 
                 var tOpts = this.getTimeOptions(form);
                 form.submitButton.queryOptions.time_opt = tOpts.time_opt;
@@ -257,9 +264,11 @@ gxp.widgets.button.NrlIrrigationChartButton = Ext.extend(Ext.SplitButton, {
                        'river_list:' + river_list + ';' +
                        'to_abs_dec:' + tOpts.to_abs_dec + ';' +
                        'from_abs_dec:' + tOpts.from_abs_dec + ';' +
-                       'month_list:' + tOpts.month_list.join('\\,') + ';'
+                       'month_list:' + tOpts.month_list.join('\\,') + ';' +
+                       'factor:' + factor + ';'
             },
             supply: function(form){
+                form.submitButton.queryOptions.source_type = 'supply';
                 // gets the gran type parameter
                 var gran_type = form.aoiFieldSet.gran_type.getValue().inputValue;
                 form.submitButton.queryOptions.gran_type = gran_type;
@@ -269,6 +278,11 @@ gxp.widgets.button.NrlIrrigationChartButton = Ext.extend(Ext.SplitButton, {
 
                 var region_list = form.aoiFieldSet.selectedRegions.getValue();
                 form.submitButton.queryOptions.region_list = region_list;
+
+                var factor = form.uomFlow.getValue();
+                var uomLabel = form.uomFlow.getRawValue();
+                form.submitButton.queryOptions.factor = factor;
+                form.submitButton.queryOptions.uomLabel = uomLabel;
 
                 var tOpts = this.getTimeOptions(form);
                 form.submitButton.queryOptions.time_opt = tOpts.time_opt;
@@ -283,7 +297,8 @@ gxp.widgets.button.NrlIrrigationChartButton = Ext.extend(Ext.SplitButton, {
                        'region_list:' + region_list + ';' +
                        'gran_type:' + gran_type + ';' +
                        'gran_type_str:' + gran_type_str + ';' +
-                       'month_list:' + tOpts.month_list.join('\\,') + ';'
+                       'month_list:' + tOpts.month_list.join('\\,') + ';' +
+                       'factor:' + factor + ';'
             }
         };
 
@@ -333,10 +348,12 @@ gxp.widgets.button.NrlIrrigationChartButton = Ext.extend(Ext.SplitButton, {
                     return;
                 }
 
+                var sourceType = this.refOwner.source.getValue().inputValue;
+
                 var customOpt = {
                     stackedCharts: this.stackedCharts,
                     highChartExportUrl: this.target.highChartExportUrl,
-                    uomLabel: "UNIT" //this.refOwner.lblOutput.text
+                    uomLabel: (sourceType == 'flow' ? this.refOwner.uomFlow.getRawValue() : this.refOwner.uomSupply.getRawValue())
                 };
 
                 var gran_type = this.refOwner.aoiFieldSet.gran_type.getValue().inputValue;
@@ -371,8 +388,13 @@ gxp.widgets.button.NrlIrrigationChartButton = Ext.extend(Ext.SplitButton, {
 
         var colorRGB = nrl.chartbuilder.util.randomColorsRGB(numOfSeries);
         var colorHEX = nrl.chartbuilder.util.randomColorsHEX(numOfSeries);
-
-        var uomLabel = "UNIT"; //form.lblOutput.text;
+        
+        var uomLabel = undefined;
+        if (!form.uomFlow.hidden){
+            uomLabel = form.uomFlow.getRawValue();
+        }else{
+            uomLabel = form.uomSupply.getRawValue();
+        }
 
         for(var i=0; i<numOfSeries; i++){
             var sName = fromYear + i + '';

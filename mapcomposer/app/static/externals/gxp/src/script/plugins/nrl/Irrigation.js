@@ -309,9 +309,11 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
                 hidden: false,
                 listeners: {
                     change: function(from, to){
-                        var outputtype = this.output.outputType.getValue().inputValue;
-                        if (outputtype != 'data')
-                            this.output.submitButton.initChartOpt(this.output);
+                        if (this.output.outputType.getValue()){
+                            var outputtype = this.output.outputType.getValue().inputValue;
+                            if (outputtype != 'data')
+                                this.output.submitButton.initChartOpt(this.output);
+                        }
                     },
                     scope: this
                 }

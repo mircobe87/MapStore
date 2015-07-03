@@ -124,8 +124,8 @@ gxp.widgets.button.NrlIrrigationTabButton = Ext.extend(Ext.Button, {
                 var region_list = form.aoiFieldSet.selectedRegions.getValue();
                 form.submitButton.queryOptions.region_list = region_list;
 
-                var factor = form.uomFlow.getValue();
-                var uomLabel = form.uomFlow.getRawValue();
+                var factor = form.uomSupply.getValue();
+                var uomLabel = form.uomSupply.getRawValue();
                 form.submitButton.queryOptions.factor = factor;
                 form.submitButton.queryOptions.uomLabel = uomLabel;
 
@@ -205,7 +205,7 @@ gxp.widgets.button.NrlIrrigationTabButton = Ext.extend(Ext.Button, {
 
                 var sortRules;
                 if(this.queryOptions.source_type == 'flow'){
-                    sortRules = [{field: 'river', direction: 'ASC'},{field: 'abs_dek', direction: 'ASC'}];
+                    sortRules = [{field: 'river', direction: 'ASC'},{field: 'abs_dec', direction: 'ASC'}];
                 }else{
                     if (this.queryOptions.gran_type == 'province'){
                         sortRules = [
@@ -378,15 +378,19 @@ gxp.widgets.button.NrlIrrigationTabButton = Ext.extend(Ext.Button, {
                     }
                 },{
                     sortable: true,
-                    id: 'watersupply',
+                    id: 'withdrawal',
                     header:'Water Supply (' + queryOptions.uomLabel + ')',
-                    name: 'watersupply',
+                    name: 'withdrawal',
                     //width:50,
-                    dataIndex: 'watersupply',
+                    dataIndex: 'withdrawal',
                     renderer: Ext.util.Format.numberRenderer('0.000')
                 }
             ]
         };
+
+        if (queryOptions.gran_type == 'province'){
+            gridCols.supply.splice(1,1);
+        }
 
         var grid = new Ext.grid.GridPanel({
             bbar:["->",
@@ -412,7 +416,7 @@ gxp.widgets.button.NrlIrrigationTabButton = Ext.extend(Ext.Button, {
             border: false,
             layout: 'fit',
             store: store,
-            autoExpandColumn: 'value',
+            autoExpandColumn: (queryOptions.source_type == 'flow' ? 'waterflow' : 'withdrawal'),
             title: '',
             columns: gridCols[queryOptions.source_type]
         });
@@ -426,7 +430,7 @@ gxp.widgets.button.NrlIrrigationTabButton = Ext.extend(Ext.Button, {
             tabelTitle += 'REGION';
         }
 
-        var info = getChartInfo(regionList, this.queryOptions);
+        //var info = getChartInfo(regionList, this.queryOptions);
         var win = new Ext.Window({
             title: tabelTitle,
             collapsible: true,

@@ -107,47 +107,51 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
             tpl: "<tpl for=\".\"><div class=\"search-item\"><h3>{name}</span></h3>(Province)</div></tpl>"
         }
     },
-    metadataFlowFields: [{
-        name: 'river',
-        mapping: 'properties.river'
-    }, {
-        name: 'label',
-        mapping: 'properties.river',
-        convert: function(v, rec){
-            return nrl.chartbuilder.util.toTitleCase(v);
+    metadataFlowFields: [
+        {
+            name: 'river',
+            mapping: 'properties.river'
+        }, {
+            name: 'label',
+            mapping: 'properties.river',
+            convert: function(v, rec){
+                return nrl.chartbuilder.util.toTitleCase(v);
+            }
+        }, {
+            name: 'max_dec_abs',
+            mapping: 'properties.max_dec_abs'
+        }, {
+            name: 'min_dec_abs',
+            mapping: 'properties.min_dec_abs'
         }
-    }, {
-        name: 'max_dec_abs',
-        mapping: 'properties.max_dec_abs'
-    }, {
-        name: 'min_dec_abs',
-        mapping: 'properties.min_dec_abs'
-    }],
-    uomFields: [{
-        name: 'id',
-        mapping: 'properties.uid'
-    }, {
-        name: 'cid',
-        mapping: 'properties.cid'
-    }, {
-        name: 'cls',
-        mapping: 'properties.cls'
-    }, {
-        name: 'coefficient',
-        mapping: 'properties.coefficient'
-    }, {
-        name: 'description',
-        mapping: 'properties.description'
-    }, {
-        name: 'filter',
-        mapping: 'properties.filter'
-    }, {
-        name: 'name',
-        mapping: 'properties.name'
-    }, {
-        name: 'shortname',
-        mapping: 'properties.shortname'
-    }],
+    ],
+    uomFields: [
+        {
+            name: 'id',
+            mapping: 'properties.uid'
+        }, {
+            name: 'cid',
+            mapping: 'properties.cid'
+        }, {
+            name: 'cls',
+            mapping: 'properties.cls'
+        }, {
+            name: 'coefficient',
+            mapping: 'properties.coefficient'
+        }, {
+            name: 'description',
+            mapping: 'properties.description'
+        }, {
+            name: 'filter',
+            mapping: 'properties.filter'
+        }, {
+            name: 'name',
+            mapping: 'properties.name'
+        }, {
+            name: 'shortname',
+            mapping: 'properties.shortname'
+        }
+    ],
     radioQtipTooltip: "You have to be logged in to use this method",
     /**
      * api: method[addActions]
@@ -225,7 +229,7 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
                             ref: '../submitButton',
                             highChartExportUrl: this.highChartExportUrl,
                             target: this.target,
-                            form: this,
+                            form: this
                         });
 
                         var store = areaSelector.store;
@@ -246,7 +250,7 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
                 style: {
                     marginTop: '6px'
                 },
-                fieldLabel: 'Time Range',
+                fieldLabel: 'Data Aggregation',
                 xtype: 'radiogroup',
                 anchor: '100%',
                 autoHeight: true,
@@ -261,7 +265,7 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
                     inputValue: 'annual',
                     checked: true
                 }, {
-                    boxLabel: '10-Days Period',
+                    boxLabel: '10-day',
                     name: 'timerange',
                     inputValue: 'monthly'
                 }],
@@ -302,6 +306,7 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
                     this.setAnnualMode();
                 }
             }, { // YEAR range selector ---------------------------------
+                fieldLabel: 'Data Series',
                 ref: 'yearRangeSelector',
                 xtype: 'yearrangeselector',
                 anchor: '100%',
@@ -336,15 +341,15 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
                 title: this.outputTypeText,
                 defaultType: 'radio',
                 disabled: false,
-                columns: 2,
+                columns: 1,
                 items: [{
-                    boxLabel: 'Water Flow',
+                    boxLabel: 'River Water Inflow at Rim Stations',
                     name: 'source',
                     inputValue: 'flow',
                     checked: true,
                     dataUrl: this.metadataFlowUrl
                 }, {
-                    boxLabel: 'Water Supply',
+                    boxLabel: 'Irrigation Water Supply from Canal Head Works',
                     name: 'source',
                     inputValue: 'supply',
                     dataUrl: this.metadataSupplyUrl
@@ -366,7 +371,7 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
                                     success: function(response, opts) {
                                         var obj = Ext.decode(response.responseText);
                                         var data = obj.features[0].properties;
-                                        this.refOwner.metadata.supply = {}
+                                        this.refOwner.metadata.supply = {};
                                         this.refOwner.metadata.supply.district = {
                                             min_dec_abs: data.min_district,
                                             max_dec_abs: data.max_district
@@ -439,7 +444,7 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
                 }
             }, { // RIVES grid ------------------------------------------
                 xtype: 'nrl_checkboxcelectiongrid',
-                title: 'Rivers',
+                title: 'Rivers at Rim Station',
                 enableHdMenu: false,
                 hideHeaders: false,
                 hidden: false,
@@ -491,7 +496,7 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
                 }
             }, { // UOM fieldset ----------------------------------------
                 style: {
-                    marginTop: '12px',
+                    marginTop: '12px'
                 },
                 xtype: 'fieldset',
                 title: 'Unit Of Measure',
@@ -596,8 +601,8 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
                 var endRange;
 
                 if (records){
-                    startRange = Number.MAX_SAFE_INTEGER;
-                    endRange = Number.MIN_SAFE_INTEGER;
+                    startRange = (Number.MAX_SAFE_INTEGER ? Number.MAX_SAFE_INTEGER : Math.pow(2,53)-1);
+                    endRange = (Number.MIN_SAFE_INTEGER ? Number.MIN_SAFE_INTEGER : -(Math.pow(2, 53) - 1));
 
                     for (var rIndex = 0; rIndex < records.length; rIndex++) {
                        var recData = records[rIndex].data;
@@ -686,7 +691,7 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
                     text: t
                 });
             }
-        }
+        };
         return o;
     }
 });

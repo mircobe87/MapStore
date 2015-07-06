@@ -58,13 +58,12 @@ nrl.chartbuilder.irrigation.commons = {
         return lbl;
     },
     getChartTitle: function(chartData, chartIndex, sourceType) {
-        var title = 'Water ' + (sourceType == 'flow' ? 'Flow' : 'Supply') + ': ';
+        var title = (sourceType == 'flow' ? 'River Water Flow' : 'Irrigation Water Supply') + ': ';
         var subtitle = chartData[chartIndex].title;
         title += subtitle;
         return title;
     },
-    getChartInfo: function(chartData, chartIndex, queryParams, sourceType) {
-        var subjectLabel = sourceType == 'flow' ? 'River' : 'Region';
+    getChartInfo: function(sourceType) {
         var info = '<span style="font-size:10px;">Source: Pakistan Crop Portal</span><br />';
 
         // 'today' will contain the current date in dd/mm/yyyy format
@@ -74,45 +73,45 @@ nrl.chartbuilder.irrigation.commons = {
         var yyyy = now.getFullYear();
         var today = dd + '/' + mm + '/' + yyyy;
         info += '<span style="font-size:10px;">Date: ' + today + '</span><br />';
-
-        // build a list of river for the current chart.
-        var subject = '';
-        var subjectList = [];
-        if(chartIndex == undefined || chartIndex < 0){
-            for(var i=0; i<chartData.length; i++){
-                subjectList.push(chartData[i].title);
-            }
-            info += '<span style="font-size:10px;">' + subjectLabel + 's: ' + subjectList.join(', ') + '</span><br />'
-        }else{
-            subject = chartData[chartIndex].title;
-            info += '<span style="font-size:10px;">' + subjectLabel + ': ' + subject + '</span><br />'
-        }
-
-        var fromData = nrl.chartbuilder.util.getDekDate(queryParams.from_abs_dec);
-        var toData = nrl.chartbuilder.util.getDekDate(queryParams.to_abs_dec);
-        switch (queryParams.time_opt) {
-            case 'month':
-                {
-                    var fromYear = fromData.year;
-                    var toYear = toData.year;
-                    if (toYear - fromYear == 0) {
-                        info += '<span style="font-size:10px;">Year: ' + fromYear + '</span><br />';
-                    } else {
-                        info += '<span style="font-size:10px;">Years: ' + fromYear + ' - ' + toYear + '</span><br />';
-                    }
-                }
-                break;
-            case 'decade_year':
-                {
-                    var monthList = queryParams.month_list.replace(/[']/g,'').split('\\,');
-                    var from = monthList[0];
-                    var to = monthList[monthList.length-1];
-                    info += '<span style="font-size:10px;">Time Range: ' + nrl.chartbuilder.util.toTitleCase(from) + ' - ' + nrl.chartbuilder.util.toTitleCase(to) + '</span><br />'
-                }
-                break;
-        }
+        info += '<span style="font-size:10px;">Data source: ' + (sourceType == 'flow' ? 'Punjab Irrigation Department' : 'Indus River System Authority (IRSA)') + '</span><br />';
 
         return info;
+    },
+    getChartConfig: function(opt, customOpt, sourceType) {
+        var lblPrefix = sourceType == 'flow' ? 'Volume flow rate' : 'Volume' ;
+        var ret = {
+            fields: [{
+                name: 'time',
+                type: 'string'
+            }],
+            series: [],
+            yAxis: [],
+            plotOptions: customOpt.stackedCharts
+        };
+
+        for(var year in opt.series){
+            ret.series.push(opt.series[year]);
+        }
+
+        ret.yAxis = [{ // AREA
+            title: {
+                text: customOpt.stackedCharts.series.stacking == 'percent' ? 'Percentage (%)' : lblPrefix + ' (' + customOpt.uomLabel + ')'
+            },
+            labels: {
+                formatter: function() {
+                    return this.value;
+                },
+                style: {
+                    color: "#666666"
+                }
+            }
+        }];
+        //sort series in an array (lines on top, than bars then areas)
+        ret.series.sort(function(a,b){
+            //area,bar,line,spline are aphabetically ordered as we want
+            return a.type < b.type ? -1 : 1;
+        });
+        return ret;
     }
 };
 nrl.chartbuilder.irrigation.flow = {
@@ -171,44 +170,11 @@ nrl.chartbuilder.irrigation.flow = {
         }
         return data;
     },
-    getChartConfig: function(opt, customOpt) {
-        var ret = {
-            fields: [{
-                name: 'time',
-                type: 'string'
-            }],
-            series: [],
-            yAxis: [],
-            plotOptions: customOpt.stackedCharts
-        };
-
-        for(var year in opt.series){
-            ret.series.push(opt.series[year]);
-        }
-
-        ret.yAxis = [{ // AREA
-            title: {
-                text: customOpt.stackedCharts.series.stacking == 'percent' ? 'Percentage (%)' : customOpt.uomLabel
-            },
-            labels: {
-                formatter: function() {
-                    return this.value;
-                },
-                style: {
-                    color: "#666666"
-                }
-            }
-        }];
-        //sort series in an array (lines on top, than bars then areas)
-        ret.series.sort(function(a,b){
-            //area,bar,line,spline are aphabetically ordered as we want
-            return a.type < b.type ? -1 : 1;
-        });
-        return ret;
-    },
     makeChart: function(data, opt, customOpt, queryParams) {
 
         var charts = [];
+        
+        var info = nrl.chartbuilder.irrigation.commons.getChartInfo('flow');
 
         for (var r = 0; r < data.length; r++) {
             // defines fields for the store of the chart.
@@ -226,9 +192,8 @@ nrl.chartbuilder.irrigation.flow = {
 
             // retreive chart configuration from plot options
             // chartConfig will contain configuration chart series and yAxis.
-            var chartConfig = this.getChartConfig(opt, customOpt);
+            var chartConfig = nrl.chartbuilder.irrigation.commons.getChartConfig(opt, customOpt, 'flow');
 
-            var info = nrl.chartbuilder.irrigation.commons.getChartInfo(data, r, queryParams, 'flow');
             var chartTitle = nrl.chartbuilder.irrigation.commons.getChartTitle(data, r, 'flow');
 
             var store = new Ext.data.JsonStore({
@@ -365,39 +330,6 @@ nrl.chartbuilder.irrigation.supply = {
         }
         return data;
     },
-    getChartConfig: function(opt, customOpt) {
-        var ret = {
-            fields: [{
-                name: 'time',
-                type: 'string'
-            }],
-            series: [],
-            yAxis: [],
-            plotOptions: customOpt.stackedCharts
-        };
-        for(var year in opt.series){
-            ret.series.push(opt.series[year]);
-        }
-        ret.yAxis = [{ // AREA
-            title: {
-                text: customOpt.stackedCharts.series.stacking == 'percent' ? 'Percentage (%)' : customOpt.uomLabel
-            },
-            labels: {
-                formatter: function() {
-                    return this.value;
-                },
-                style: {
-                    color: "#666666"
-                }
-            }
-        }];
-        //sort series in an array (lines on top, than bars then areas)
-        ret.series.sort(function(a,b){
-            //area,bar,line,spline are aphabetically ordered as we want
-            return a.type < b.type ? -1 : 1;
-        });
-        return ret;
-    },
     makeChart: function(data, opt, customOpt, queryParams) {
         var charts = [];
 
@@ -417,7 +349,7 @@ nrl.chartbuilder.irrigation.supply = {
 
             // retreive chart configuration from plot options
             // chartConfig will contain configuration chart series and yAxis.
-            var chartConfig = this.getChartConfig(opt, customOpt);
+            var chartConfig = nrl.chartbuilder.irrigation.commons.getChartConfig(opt, customOpt, 'supply');
 
             var info = nrl.chartbuilder.irrigation.commons.getChartInfo(data, r, queryParams, 'supply');
             var chartTitle = nrl.chartbuilder.irrigation.commons.getChartTitle(data, r, 'supply');

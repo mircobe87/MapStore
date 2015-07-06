@@ -512,7 +512,7 @@
             "metadataFlowUrl": "http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:irrigation_metadata_flow&outputFormat=json",
             "metadataSupplyUrl": "http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:irrigation_metadata_supply&outputFormat=json",
             "highChartExportUrl": "http://84.33.2.75/highcharts-export/",
-            "titleText": "Irrigation",
+            "titleText": "Water Resources",
             "outputConfig": {
                 "id": "Irrigation"
             },

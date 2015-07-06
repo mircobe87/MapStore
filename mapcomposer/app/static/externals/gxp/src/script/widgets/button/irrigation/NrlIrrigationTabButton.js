@@ -79,7 +79,7 @@ gxp.widgets.button.NrlIrrigationTabButton = Ext.extend(Ext.Button, {
                     to_abs_dec: to_abs_dec,
                     from_abs_dec: from_abs_dec,
                     month_list: month_list
-                }
+                };
             },
 
             flow: function(form){
@@ -110,7 +110,7 @@ gxp.widgets.button.NrlIrrigationTabButton = Ext.extend(Ext.Button, {
                        'to_abs_dec:' + tOpts.to_abs_dec + ';' +
                        'from_abs_dec:' + tOpts.from_abs_dec + ';' +
                        'month_list:' + tOpts.month_list.join('\\,') + ';' +
-                       'factor:' + factor + ';'
+                       'factor:' + factor + ';';
             },
             supply: function(form){
                 form.submitButton.queryOptions.source_type = 'supply';
@@ -143,7 +143,7 @@ gxp.widgets.button.NrlIrrigationTabButton = Ext.extend(Ext.Button, {
                        'gran_type:' + gran_type + ';' +
                        'gran_type_str:' + gran_type_str + ';' +
                        'month_list:' + tOpts.month_list.join('\\,') + ';' +
-                       'factor:' + factor + ';'
+                       'factor:' + factor + ';';
             }
         };
 
@@ -160,7 +160,7 @@ gxp.widgets.button.NrlIrrigationTabButton = Ext.extend(Ext.Button, {
             } else {
                 return 'province,district,abs_dec,withdrawal';
             }
-        }
+        };
 
         var sourceType = this.refOwner.source.getValue().inputValue;
 
@@ -255,8 +255,7 @@ gxp.widgets.button.NrlIrrigationTabButton = Ext.extend(Ext.Button, {
             }
             return nstr;
         };
-        var getChartInfo = function(chartData, chartIndex, queryParams, sourceType) {
-            var subjectLabel = sourceType == 'flow' ? 'River' : 'Region';
+        var getChartInfo = function(sourceType) {
             var info = '<span style="font-size:10px;">Source: Pakistan Crop Portal</span><br />';
 
             // 'today' will contain the current date in dd/mm/yyyy format
@@ -265,45 +264,9 @@ gxp.widgets.button.NrlIrrigationTabButton = Ext.extend(Ext.Button, {
             var mm = nrl.chartbuilder.util.zeroPadding(now.getMonth() + 1, 2); //January is 0!
             var yyyy = now.getFullYear();
             var today = dd + '/' + mm + '/' + yyyy;
+
             info += '<span style="font-size:10px;">Date: ' + today + '</span><br />';
-
-            // build a list of river for the current chart.
-            var subject = '';
-            var subjectList = [];
-            if(chartIndex == undefined || chartIndex < 0){
-                for(var i=0; i<chartData.length; i++){
-                    subjectList.push(chartData[i].title);
-                }
-                info += '<span style="font-size:10px;">' + subjectLabel + 's: ' + subjectList.join(', ') + '</span><br />'
-            }else{
-                subject = chartData[chartIndex].title;
-                info += '<span style="font-size:10px;">' + subjectLabel + ': ' + subject + '</span><br />'
-            }
-
-            var fromData = nrl.chartbuilder.util.getDekDate(queryParams.from_abs_dec);
-            var toData = nrl.chartbuilder.util.getDekDate(queryParams.to_abs_dec);
-            switch (queryParams.time_opt) {
-                case 'month':
-                    {
-                        var fromYear = fromData.year;
-                        var toYear = toData.year;
-                        if (toYear - fromYear == 0) {
-                            info += '<span style="font-size:10px;">Year: ' + fromYear + '</span><br />';
-                        } else {
-                            info += '<span style="font-size:10px;">Years: ' + fromYear + ' - ' + toYear + '</span><br />';
-                        }
-                    }
-                    break;
-                case 'decade_year':
-                    {
-                        var from = nrl.chartbuilder.util.numberToMonthName(fromData.month);
-                        var to = nrl.chartbuilder.util.numberToMonthName(toData.month);
-
-                        info += '<span style="font-size:10px;">Time Range: ' + from + ' - ' + to + '</span><br />'
-                    }
-                    break;
-            }
-
+            info += '<span style="font-size:10px;">Data source: ' + (sourceType == 'flow' ? 'Punjab Irrigation Department' : 'Indus River System Authority (IRSA)') + '</span><br />';
             return info;
         };
 
@@ -336,7 +299,7 @@ gxp.widgets.button.NrlIrrigationTabButton = Ext.extend(Ext.Button, {
                 },{
                     sortable: true,
                     id: 'waterflow',
-                    header:'Water Flow (' + queryOptions.uomLabel + ')',
+                    header:'Volume Flow Rate (' + queryOptions.uomLabel + ')',
                     name: 'waterflow',
                     //width:50,
                     dataIndex: 'waterflow',
@@ -379,7 +342,7 @@ gxp.widgets.button.NrlIrrigationTabButton = Ext.extend(Ext.Button, {
                 },{
                     sortable: true,
                     id: 'withdrawal',
-                    header:'Water Supply (' + queryOptions.uomLabel + ')',
+                    header:'Volume (' + queryOptions.uomLabel + ')',
                     name: 'withdrawal',
                     //width:50,
                     dataIndex: 'withdrawal',
@@ -420,19 +383,11 @@ gxp.widgets.button.NrlIrrigationTabButton = Ext.extend(Ext.Button, {
             title: '',
             columns: gridCols[queryOptions.source_type]
         });
+        var tableTitle = (queryOptions.source_type == 'flow' ? 'River Water Flow' : 'Irrigation Water Supply');
 
-        var tabelTitle = 'Irrigation: ';
-        if (gran_type == 'pakistan'){
-            tabelTitle += 'Pakistan'
-        }else if (regionList.length == 1){
-            tabelTitle += regionList[0];
-        }else{
-            tabelTitle += 'REGION';
-        }
-
-        //var info = getChartInfo(regionList, this.queryOptions);
+        var info = getChartInfo(queryOptions.source_type);
         var win = new Ext.Window({
-            title: tabelTitle,
+            title: tableTitle,
             collapsible: true,
             iconCls: this.iconCls,
             constrainHeader: true,

@@ -107,7 +107,7 @@ gxp.widgets.button.NrlIrrigationChartButton = Ext.extend(Ext.SplitButton, {
                     }
                 }
             }]
-        }
+        };
         return fieldSet;
     },
     createStackChartsOptions: function(stackedCharts) {
@@ -234,7 +234,7 @@ gxp.widgets.button.NrlIrrigationChartButton = Ext.extend(Ext.SplitButton, {
                     to_abs_dec: to_abs_dec,
                     from_abs_dec: from_abs_dec,
                     month_list: month_list
-                }
+                };
             },
 
             flow: function(form){
@@ -265,7 +265,7 @@ gxp.widgets.button.NrlIrrigationChartButton = Ext.extend(Ext.SplitButton, {
                        'to_abs_dec:' + tOpts.to_abs_dec + ';' +
                        'from_abs_dec:' + tOpts.from_abs_dec + ';' +
                        'month_list:' + tOpts.month_list.join('\\,') + ';' +
-                       'factor:' + factor + ';'
+                       'factor:' + factor + ';';
             },
             supply: function(form){
                 form.submitButton.queryOptions.source_type = 'supply';
@@ -298,7 +298,7 @@ gxp.widgets.button.NrlIrrigationChartButton = Ext.extend(Ext.SplitButton, {
                        'gran_type:' + gran_type + ';' +
                        'gran_type_str:' + gran_type_str + ';' +
                        'month_list:' + tOpts.month_list.join('\\,') + ';' +
-                       'factor:' + factor + ';'
+                       'factor:' + factor + ';';
             }
         };
 
@@ -315,7 +315,7 @@ gxp.widgets.button.NrlIrrigationChartButton = Ext.extend(Ext.SplitButton, {
             } else {
                 return 'province,district,abs_dec,withdrawal';
             }
-        }
+        };
 
         var sourceType = this.refOwner.source.getValue().inputValue;
 
@@ -406,7 +406,7 @@ gxp.widgets.button.NrlIrrigationChartButton = Ext.extend(Ext.SplitButton, {
                 type: 'column',
                 dataIndex: sName,
                 unit: uomLabel
-            }
+            };
         }
 
         Ext.apply(options, ret);

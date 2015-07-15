@@ -61,7 +61,7 @@ gxp.plugins.nrl.CropData = Ext.extend(gxp.plugins.Tool, {
 	/** base url for data **/ 
     dataUrl: null, //"http://84.33.2.24/geoserver/ows?",
     /** Base URL for UOM **/
-    unitsUrl:"http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:measure_units_for_crop&outputFormat=json",
+    unitsUrl:"http://cip-pakistan.geo-solutions.it/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:measure_units_for_crop&outputFormat=json",
 	comboConfigs:{
         base:{
             anchor:'100%',

@@ -243,7 +243,7 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                     style: {
                         marginTop: '6px'
                     },
-                    fieldLabel: 'Time Range',
+                    fieldLabel: 'Data Aggregation',
                     xtype: 'radiogroup',
                     anchor: '100%',
                     autoHeight: true,
@@ -292,6 +292,7 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                         this.ownerCt.monthRangeSelector.hide();
                     }
                 },{ // YEAR compobox ---------------------------------------
+                    fieldLabel: 'Data series',
                     name: 'year',
                     disabled: false,
                     xtype: 'singleyearcombobox',
@@ -299,12 +300,14 @@ gxp.plugins.nrl.Fertilizers = Ext.extend(gxp.plugins.Tool, {
                     ref: 'yearSelector',
                     disabled: true
                 },{ // MONTH range selector --------------------------------
+                    fieldLabel: 'Time span',
                     ref: 'monthRangeSelector',
                     xtype: 'monthyearrangeselector',
                     anchor: '100%',
                     noCrossYear: false,
                     disabled: true
                 },{ // YEAR range selector ---------------------------------
+                    fieldLabel: 'Data series',
                     ref: 'yearRangeSelector',
                     xtype: 'yearrangeselector',
                     anchor: '100%',

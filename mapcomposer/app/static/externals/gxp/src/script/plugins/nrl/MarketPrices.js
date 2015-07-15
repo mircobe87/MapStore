@@ -476,6 +476,7 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                     autoHeight: true,
                     ref: '../exchangeRateRadio',
                     hidden: true,
+                    columns: 1,
                     items: [{
                         boxLabel: 'Fixed',
                         name: 'exchangerateradio',
@@ -646,7 +647,10 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                     anchor: '100%',
                     fieldLabel: 'Output',
                     ref: '../lblOutput',
-                    text: ''
+                    text: '',
+                    style: {
+                        lineHeight: '20px'
+                    }
                 }],
                 listeners: {
                     'afterlayout': function(fieldset) {

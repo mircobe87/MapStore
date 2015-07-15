@@ -40,7 +40,7 @@
    "tools":[{
 
         "ptype": "mxp_categoryinitializer",
-        "neededCategories": ["GEOBATCH_RUN_CONFIGS","ARCHIVEDLOGS" ],
+        "neededCategories": ["GEOBATCH_RUN_CONFIGS","ARCHIVEDLOGS" ]
     },{
         "ptype": "mxp_login",
         "pluginId": "loginTool",
@@ -54,7 +54,7 @@
          "ptype": "mxp_geobatch_flows",
          "autoOpen":true,
          "closable":false,
-         "geoBatchRestURL":"http://84.33.2.75/geobatch/rest/",
+         "geoBatchRestURL":"http://cip-pakistan.geo-solutions.it/geobatch/rest/",
          "skipFlowsNotInRunConfigs": true,
          "runConfigs": {
 
@@ -68,12 +68,13 @@
                     "Cropdata",
                     "Agromet",
                     "Fertilizer",
-                    "Market Prices"
+                    "Market Prices",
+                    "Water Resources"
                 ],
                 "propertiesLists": {
                     "marketPrices": ["denominator", "exchangeRate"]
                 },
-                "factorUrl": "http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:measure_units_for_crop&outputFormat=json"
+                "factorUrl": "http://cip-pakistan.geo-solutions.it/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:measure_units_for_crop&outputFormat=json"
             },
             "ndviingestion": {
                 "xtype": "geobatch_run_local_form",
@@ -89,7 +90,7 @@
                 "fileRegex": "\\.shp$",
                 "path":"/crop_masks",
 				"decadConfig": {
-				    "dataUrl": "http://84.33.2.75/geoserver/ndvi/ows",
+				    "dataUrl": "http://cip-pakistan.geo-solutions.it/geoserver/ndvi/ows",
 					"layer": "ndvi:ndvi"
 				}
             },

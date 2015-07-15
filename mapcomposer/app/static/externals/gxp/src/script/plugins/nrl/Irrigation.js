@@ -323,6 +323,7 @@ gxp.plugins.nrl.Irrigation = Ext.extend(gxp.plugins.Tool, {
                     scope: this
                 }
             }, { // MONTH range selector --------------------------------
+                fieldLabel: 'Time Span',
                 ref: 'monthRangeSelector',
                 xtype: 'monthyearrangeselector',
                 anchor: '100%',

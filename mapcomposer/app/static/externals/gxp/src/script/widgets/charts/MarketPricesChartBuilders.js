@@ -207,19 +207,6 @@ nrl.chartbuilder.marketprices.commodity = {
         return ret;
     },
     makeChart: function(data, opt, customOpt, queryParams) {
-        // this function assums that the data for aggregate chart are as last
-        // in the chartData array.
-        //  queryParams = {
-        //      comparisonby
-        //      crop_list
-        //      currency
-        //      end_abs_dec_year
-        //      factor
-        //      gran_type
-        //      region_list
-        //      start_abs_dec_year
-        //      time_opt
-        //  }
         var getChartInfo = function(chartData, chartIndex, queryParams) {
             var info = '<span style="font-size:10px;">Source: Pakistan Crop Portal</span><br />';
 
@@ -289,10 +276,11 @@ nrl.chartbuilder.marketprices.commodity = {
             var mills = parseInt(xVal);
             var date = new Date(mills);
             var monthStr = date.dateFormat('M');
-            var yearStr = date.dateFormat('(Y)');
+            var yearStr = date.dateFormat('y');
 
-            var lbl = monthStr;
+            var lbl = monthStr + '-' + yearStr;
 
+            /*
             if (queryParams.time_opt != 'month') {
                 var dayInMonth = parseInt(date.dateFormat('d'));
                 var dec;
@@ -307,7 +295,7 @@ nrl.chartbuilder.marketprices.commodity = {
             }
 
             lbl += '<br>' + yearStr;
-
+            */
             return lbl;
         };
 
@@ -377,7 +365,8 @@ nrl.chartbuilder.marketprices.commodity = {
                                 return getXAxisLabel(this.value);
                             },
                             rotation: -45,
-                            y: 24
+                            y: 24,
+                            step: 3
                         }
                     }],
                     yAxis: chartConfig.yAxis,
@@ -577,10 +566,10 @@ nrl.chartbuilder.marketprices.region = {
             var mills = parseInt(xVal);
             var date = new Date(mills);
             var monthStr = date.dateFormat('M');
-            var yearStr = date.dateFormat('(Y)');
+            var yearStr = date.dateFormat('y');
 
-            var lbl = monthStr;
-
+            var lbl = monthStr + '-' + yearStr;
+            /*
             if (queryParams.time_opt != 'month') {
                 var dayInMonth = parseInt(date.dateFormat('d'));
                 var dec;
@@ -595,7 +584,7 @@ nrl.chartbuilder.marketprices.region = {
             }
 
             lbl += '<br>' + yearStr;
-
+            */
             return lbl;
         };
 
@@ -665,7 +654,8 @@ nrl.chartbuilder.marketprices.region = {
                                 return getXAxisLabel(this.value);
                             },
                             rotation: -45,
-                            y: 24
+                            y: 24,
+                            step: 3
                         }
                     }],
                     yAxis: chartConfig.yAxis,

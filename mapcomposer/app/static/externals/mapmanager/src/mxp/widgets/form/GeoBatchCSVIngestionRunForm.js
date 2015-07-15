@@ -136,7 +136,7 @@ mxp.widgets.GeoBatchCSVIngestionRunForm = Ext.extend(Ext.Panel, {
                                     var multipart_params = pluploadPanel.multipart_params || {};
                                     Ext.apply(multipart_params, {
                                         folder: this.path
-                                    })
+                                    });
                                     pluploadPanel.multipart_params = multipart_params;
                                 },
                                 fileUploaded: function(file) {
@@ -357,7 +357,6 @@ mxp.widgets.GeoBatchCSVIngestionRunForm = Ext.extend(Ext.Panel, {
                         root: 'features',
                         idProperty: 'uid'
                     }),
-                    value: this.defaultDenominator,
                     listeners: {
                         'select': function(combo){
                             this.refOwner.refOwner.refOwner.allowRun();

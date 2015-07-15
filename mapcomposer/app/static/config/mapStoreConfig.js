@@ -1,5 +1,5 @@
 {
-    "geoStoreBase": "http://84.33.2.75/geostore/rest/",
+    "geoStoreBase": "http://cip-pakistan.geo-solutions.it/geostore/rest/",
     "proxy": "/http_proxy/proxy/?url=",
     "defaultLanguage": "en",
     "tab": true,
@@ -8,7 +8,7 @@
             "ptype": "gxp_wmssource",
             "title": "NRL GeoServer",
             "projection": "EPSG:900913",
-            "url": "http://84.33.2.75/geoserver/ows",
+            "url": "http://cip-pakistan.geo-solutions.it/geoserver/ows",
             "layersCachedExtent": [
                 5009377.085000001,
                 0.0,
@@ -337,7 +337,7 @@
             "customParams": {
                 "outputFilename": "mapstore-print"
             },
-            "printService": "http://84.33.2.75/geoserver/pdf/",
+            "printService": "http://cip-pakistan.geo-solutions.it/geoserver/pdf/",
             "legendPanelId": "legendPanel",
             "ignoreLayers": [
                 "WFSSearch",
@@ -358,7 +358,7 @@
         },
         {
             "ptype": "gxp_ndvi",
-            "dataUrl": "http://84.33.2.75/geoserver/ows",
+            "dataUrl": "http://cip-pakistan.geo-solutions.it/geoserver/ows",
             "layer": "ndvi:ndvi",
             "outputConfig": {
                 "title": "NDVI",
@@ -387,10 +387,10 @@
                 "fillOpacity": 0.2,
                 "cursor": "pointer"
             },
-            "dataUrl": "http://84.33.2.75/geoserver/ows",
-            "rangesUrl": "http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:cropdata_ranges&outputFormat=json",
-            "unitsUrl": "http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:measure_units_for_crop&outputFormat=json",
-            "highChartExportUrl": "http://84.33.2.75/highcharts-export/",
+            "dataUrl": "http://cip-pakistan.geo-solutions.it/geoserver/ows",
+            "rangesUrl": "http://cip-pakistan.geo-solutions.it/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:cropdata_ranges&outputFormat=json",
+            "unitsUrl": "http://cip-pakistan.geo-solutions.it/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:measure_units_for_crop&outputFormat=json",
+            "highChartExportUrl": "http://cip-pakistan.geo-solutions.it/highcharts-export/",
             "layers": {
                 "district": "nrl:district_crop",
                 "province": "nrl:province_view"
@@ -408,9 +408,9 @@
                 "fillOpacity": 0.2,
                 "cursor": "pointer"
             },
-            "dataUrl": "http://84.33.2.75/geoserver/ows",
-            "factorsurl": "http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:agrometdescriptor&max&outputFormat=json",
-            "highChartExportUrl": "http://84.33.2.75/highcharts-export/",
+            "dataUrl": "http://cip-pakistan.geo-solutions.it/geoserver/ows",
+            "factorsurl": "http://cip-pakistan.geo-solutions.it/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:agrometdescriptor&max&outputFormat=json",
+            "highChartExportUrl": "http://cip-pakistan.geo-solutions.it/highcharts-export/",
             "areaFilter": "province NOT IN ('DISPUTED TERRITORY','DISPUTED AREA')",
             "titleText": "Agromet Variables",
             "outputConfig": {
@@ -431,10 +431,10 @@
                 "cursor": "pointer"
             },
             "typeNameData": "nrl:fertilizer_data",
-            "dataUrl": "http://84.33.2.75/geoserver/ows",
-            "factorsurl": "http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:agrometdescriptor&max&outputFormat=json",
-            "metadataUrl": "http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:fertilizers_metadata&outputFormat=json",
-            "highChartExportUrl": "http://84.33.2.75/highcharts-export/",
+            "dataUrl": "http://cip-pakistan.geo-solutions.it/geoserver/ows",
+            "factorsurl": "http://cip-pakistan.geo-solutions.it/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:agrometdescriptor&max&outputFormat=json",
+            "metadataUrl": "http://cip-pakistan.geo-solutions.it/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:fertilizers_metadata&outputFormat=json",
+            "highChartExportUrl": "http://cip-pakistan.geo-solutions.it/highcharts-export/",
             "titleText": "Fertilizers",
             "outputConfig": {
                 "id": "Fertilizers"
@@ -452,13 +452,13 @@
                 "fillOpacity": 0.3,
                 "cursor": "pointer"
             },
-            "dataUrl": "http://84.33.2.75/geoserver/ows",
-            "factorsurl": "http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:measure_units_for_crop&outputFormat=json",
+            "dataUrl": "http://cip-pakistan.geo-solutions.it/geoserver/ows",
+            "factorsurl": "http://cip-pakistan.geo-solutions.it/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:measure_units_for_crop&outputFormat=json",
             "defaultUOMFlow":"1",
             "defaultUOMSupply":"1",
-            "metadataFlowUrl": "http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:irrigation_metadata_flow&outputFormat=json",
-            "metadataSupplyUrl": "http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:irrigation_metadata_supply&outputFormat=json",
-            "highChartExportUrl": "http://84.33.2.75/highcharts-export/",
+            "metadataFlowUrl": "http://cip-pakistan.geo-solutions.it/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:irrigation_metadata_flow&outputFormat=json",
+            "metadataSupplyUrl": "http://cip-pakistan.geo-solutions.it/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:irrigation_metadata_supply&outputFormat=json",
+            "highChartExportUrl": "http://cip-pakistan.geo-solutions.it/highcharts-export/",
             "titleText": "Water Resources",
             "outputConfig": {
                 "id": "Irrigation"
@@ -491,10 +491,10 @@
             ],
             "defaultCurrency": "pkr",
             "defaultDenominator": "0.4",
-            "dataUrl": "http://84.33.2.75/geoserver/ows",
-            "factorsurl": "http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:measure_units_for_crop&outputFormat=json",
-            "metadataUrl": "http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:marketprices_metadata&outputFormat=json",
-            "highChartExportUrl": "http://84.33.2.75/highcharts-export/",
+            "dataUrl": "http://cip-pakistan.geo-solutions.it/geoserver/ows",
+            "factorsurl": "http://cip-pakistan.geo-solutions.it/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:measure_units_for_crop&outputFormat=json",
+            "metadataUrl": "http://cip-pakistan.geo-solutions.it/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:marketprices_metadata&outputFormat=json",
+            "highChartExportUrl": "http://cip-pakistan.geo-solutions.it/highcharts-export/",
             "titleText": "Market Prices",
             "outputConfig": {
                 "id": "Market Prices"
@@ -514,10 +514,10 @@
                 "fillOpacity": 0.2,
                 "cursor": "pointer"
             },
-            "factorsurl": "http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:agrometdescriptor&max&outputFormat=json",
-            "rangesUrl": "http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:cropdata_ranges&outputFormat=json",
-            "dataUrl": "http://84.33.2.75/geoserver/ows",
-            "highChartExportUrl": "http://84.33.2.75/highcharts-export/",
+            "factorsurl": "http://cip-pakistan.geo-solutions.it/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:agrometdescriptor&max&outputFormat=json",
+            "rangesUrl": "http://cip-pakistan.geo-solutions.it/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:cropdata_ranges&outputFormat=json",
+            "dataUrl": "http://cip-pakistan.geo-solutions.it/geoserver/ows",
+            "highChartExportUrl": "http://cip-pakistan.geo-solutions.it/highcharts-export/",
             "outputConfig": {
                 "id": "nrlCropStatus"
             },
@@ -526,11 +526,11 @@
         {
             "ptype": "nrl_report_crop_data",
             "cropPluginRef": "CropData",
-            "factorsurl": "http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:agrometdescriptor&max&outputFormat=json",
-            "rangesUrl": "http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:cropdata_ranges&outputFormat=json",
-            "unitsUrl": "http://84.33.2.75/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:measure_units_for_crop&outputFormat=json",
-            "dataUrl": "http://84.33.2.75/geoserver/ows",
-            "highChartExportUrl": "http://84.33.2.75/highcharts-export/",
+            "factorsurl": "http://cip-pakistan.geo-solutions.it/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:agrometdescriptor&max&outputFormat=json",
+            "rangesUrl": "http://cip-pakistan.geo-solutions.it/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:cropdata_ranges&outputFormat=json",
+            "unitsUrl": "http://cip-pakistan.geo-solutions.it/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:measure_units_for_crop&outputFormat=json",
+            "dataUrl": "http://cip-pakistan.geo-solutions.it/geoserver/ows",
+            "highChartExportUrl": "http://cip-pakistan.geo-solutions.it/highcharts-export/",
             "outputConfig": {
                 "id": "nrlReportCropData"
             },
@@ -550,8 +550,8 @@
         },
         {
             "ptype": "gxp_printreporthelper",
-            "printService": "http://84.33.2.75/geoserver/pdf/",
-            "dataUrl": "http://84.33.2.75/geoserver/ows",
+            "printService": "http://cip-pakistan.geo-solutions.it/geoserver/pdf/",
+            "dataUrl": "http://cip-pakistan.geo-solutions.it/geoserver/ows",
             "defaultExtent": [
                 6770799.251963,
                 2705604.806669,
@@ -572,7 +572,7 @@
         },
         {
             "ptype": "gxp_geostore_login",
-            "loginService": "http://84.33.2.75/geostore/rest/users/user/details/",
+            "loginService": "http://cip-pakistan.geo-solutions.it/geostore/rest/users/user/details/",
             "enableAdminGUILogin": true,
             "renderAdminToTab": true,
             "autoLogin": true,

@@ -48,7 +48,7 @@ gxp.widgets.button.NrlIrrigationChartButton = Ext.extend(Ext.SplitButton, {
      * Options for the window manager
      */
     windowManagerOptions: {
-        title: "Irrigation"
+        title: "Water Resources"
     },
     /**
      * private method[createOptionsFildset]

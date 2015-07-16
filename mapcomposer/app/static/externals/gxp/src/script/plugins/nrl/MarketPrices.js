@@ -207,7 +207,7 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                         this.output.fireEvent('update', store);
                         this.output.fireEvent('show');
 
-                        
+
                         this.output.comparisonby.setDisabled(outputValue == 'data');
                         if (outputValue == 'data'){
                             this.output.comparisonby.oldValue = this.output.comparisonby.getValue().inputValue;
@@ -328,7 +328,7 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                         var granType = itemSelected.inputValue;
                         var records = this.ownerCt.crops.getSelections();
                         var outputtype = this.ownerCt.outputType.getValue().inputValue;
-                        
+
                         this.refOwner.updateSubmitBtnState();
                         if (outputtype != 'data')
                             this.ownerCt.submitButton.initChartOpt(this.ownerCt);
@@ -448,7 +448,7 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                     listeners: {
                         'select': function(combo, record, index) {
                             this.ownerCt.fireEvent('afterlayout', this.ownerCt);
-                            
+
                             var selectedVal = combo.value;
                             if (selectedVal == 'usd'){
                                 this.ownerCt.ownerCt.customExchangeRate.show();
@@ -702,8 +702,14 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                 var maxYear = nrl.chartbuilder.util.getDekDate(endRange).year;
 
                 // sets up yearRangeSelector max & min values
+                this.yearRangeSelector.startValue.setValue(minYear);
+                this.yearRangeSelector.endValue.setValue(maxYear);
+
                 this.yearRangeSelector.setMaxValue(maxYear);
+                this.yearRangeSelector.slider.setValue(1, maxYear);
+
                 this.yearRangeSelector.setMinValue(minYear);
+                this.yearRangeSelector.slider.setValue(0, minYear);
 
                 // sets year values for yearSelector combobox
                 // if it's possible it keeps the previous selected year

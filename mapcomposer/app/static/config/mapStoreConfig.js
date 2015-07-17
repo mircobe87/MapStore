@@ -391,6 +391,7 @@
             "rangesUrl": "http://cip-pakistan.geo-solutions.it/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:cropdata_ranges&outputFormat=json",
             "unitsUrl": "http://cip-pakistan.geo-solutions.it/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:measure_units_for_crop&outputFormat=json",
             "highChartExportUrl": "http://cip-pakistan.geo-solutions.it/highcharts-export/",
+            "sourcesUrl": "http://cip-pakistan.geo-solutions.it/geoserver/nrl/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nrl:cropdata_sources&outputFormat=json",
             "layers": {
                 "district": "nrl:district_crop",
                 "province": "nrl:province_view"

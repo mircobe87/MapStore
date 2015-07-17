@@ -1435,7 +1435,7 @@ nrl.chartbuilder.crop.compareSources = {
                 chartData.rows.push(row);
                 timeToRowIndex[x] = chartData.rows.length-1;
             }else{
-                row = timeToRowIndex[x];
+                row = chartData.rows[timeToRowIndex[x]];
             }
             row[src] = value;
         }

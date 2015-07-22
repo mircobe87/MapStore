@@ -189,6 +189,7 @@ gxp.plugins.nrl.CropData = Ext.extend(gxp.plugins.Tool, {
             minWidth:180,
             autoScroll:true,
             frame:true,
+            buttonAlign: 'left',
             items:[
                 {
                     fieldLabel: this.outputTypeText,
@@ -215,6 +216,7 @@ gxp.plugins.nrl.CropData = Ext.extend(gxp.plugins.Tool, {
 							this.output.changeMode('composite');
                             this.output.mode.setValue('composite',true);
                             if(outputValue == 'data'){
+                                this.output.src.setVisible(true);
                                 this.output.outputmode.setVisible(false);
                                 this.output.mode.setVisible(false);
                                 variable.setVisible(false);
@@ -227,9 +229,11 @@ gxp.plugins.nrl.CropData = Ext.extend(gxp.plugins.Tool, {
                                     xtype: 'gxp_nrlCropDataTabButton',
                                     ref: '../submitButton',
                                     target:this.target,
-                                    form: this
+                                    form: this,
+                                    typeName: this.typeNameData
                                 });
 
+                                aoiFieldSet.disableWidth= [];
 								// Avoid 'pakistan' checked when 'outputValue' = 'data'
 								if(gran_type == "pakistan"){
 									aoiFieldSet.gran_type.reset();
@@ -242,6 +246,7 @@ gxp.plugins.nrl.CropData = Ext.extend(gxp.plugins.Tool, {
                                 this.output.syncSize();
 
                             }else if(outputValue == 'map'){
+                                this.output.src.setVisible(false);
                                 this.output.outputmode.setVisible(false);
                                 this.output.mode.setVisible(false);
                                 variable.setVisible(true);
@@ -273,6 +278,7 @@ gxp.plugins.nrl.CropData = Ext.extend(gxp.plugins.Tool, {
                                 this.output.syncSize();
 
                             }else{
+                                this.output.src.setVisible(false);
                                 this.output.outputmode.setVisible(true);
                                 this.output.mode.setVisible(true);
                                 this.output.units.setDisabled(false);
@@ -292,13 +298,20 @@ gxp.plugins.nrl.CropData = Ext.extend(gxp.plugins.Tool, {
                                     xtype: 'gxp_nrlCropDataButton',
                                     ref: '../submitButton',
                                     target:this.target,
-                                    form: this
+                                    form: this,
+                                    typeName: this.typeNameData
                                 });
                                 var st = areaSelector.store;
                                 this.output.fireEvent('update',st);
                                 this.output.fireEvent('show');
                                 this.output.doLayout();
                                 this.output.syncSize();
+                            }
+
+                            if(this.output.submitButton.xtype == 'gxp_nrlCropDataButton'){
+                                this.output.optBtn.setDisabled(this.output.submitButton.disabled);
+                            }else{
+                                this.output.optBtn.disable();
                             }
 
                             //set Labels of gran_type for map
@@ -369,7 +382,23 @@ gxp.plugins.nrl.CropData = Ext.extend(gxp.plugins.Tool, {
                     areaFilter:this.areaFilter,
                     hilightLayerName:this.hilightLayerName,
                     layers: this.layers,
-                    selectableLayer: this.layers.province
+                    selectableLayer: this.layers.province,
+                    listeners: {
+                        grantypeChange: function (checked) {
+                            var sources = this.refOwner.src.getSelections();
+                            var gran_type = checked.inputValue;
+                            var mode = this.refOwner.mode.getValue().inputValue;
+                            if (mode == 'compareSources' && gran_type == 'pakistan'){
+                                this.refOwner.submitButton.setDisabled(sources.length <= 0);
+                                //this.refOwner.optBtn.setDisabled(this.refOwner.submitButton.xtype != 'gxp_nrlCropDataButton' || sources.length <= 0);
+                            }
+                            if(this.refOwner.submitButton.xtype == 'gxp_nrlCropDataButton'){
+                                this.refOwner.optBtn.setDisabled(this.refOwner.submitButton.disabled);
+                            }else{
+                                this.refOwner.optBtn.disable();
+                            }
+                        }
+                    }
                 },{
                     fieldLabel: 'Mode',
                     xtype: 'radiogroup',
@@ -384,7 +413,7 @@ gxp.plugins.nrl.CropData = Ext.extend(gxp.plugins.Tool, {
                         {boxLabel: 'Composite' , name: 'mode', inputValue: 'composite',checked:true},
                         {boxLabel: 'Comparison by Region' , name: 'mode', inputValue: 'compareRegion'},
 						{boxLabel: 'Comparison by Commodity' , name: 'mode', inputValue: 'compareCommodity'},
-                        {boxLabel: 'Comparison by Sources' , name: 'mode', inputValue: 'compareSources'}
+                        {boxLabel: 'Comparison by Source' , name: 'mode', inputValue: 'compareSources'}
                     ],
                     listeners: {
                         change: function(c,checked){
@@ -432,9 +461,15 @@ gxp.plugins.nrl.CropData = Ext.extend(gxp.plugins.Tool, {
                                 var optionsCompare = nrl.chartbuilder.util.generateDefaultChartOpt(records,'src','src');
                                 button.optionsCompareSources = optionsCompare;
                                 var strRegionLen = this.output.aoiFieldSet.selectedRegions.getValue().length;
-                                if (strRegionLen != 0){
+                                var gran_type = this.output.aoiFieldSet.gran_type.getValue().inputValue;
+                                if (strRegionLen != 0 || gran_type == 'pakistan'){
                                     button.enable();
                                 }
+                            }
+                            if(button.xtype == 'gxp_nrlCropDataButton'){
+                                this.output.optBtn.setDisabled(button.disabled);
+                            }else{
+                                this.output.optBtn.disable();
                             }
                         }
                     },
@@ -597,7 +632,6 @@ gxp.plugins.nrl.CropData = Ext.extend(gxp.plugins.Tool, {
                         {boxLabel: 'Difference' , name: 'type', inputValue: 'difference'},
                         {boxLabel: 'Yield' , name: 'variable', inputValue: 'Yield'},
                         {boxLabel: 'Average' , name: 'type', inputValue: 'average'}
-
                     ]
                 },{
                     fieldLabel: 'Variable',
@@ -789,10 +823,15 @@ gxp.plugins.nrl.CropData = Ext.extend(gxp.plugins.Tool, {
                 season.setVisible(mode == 'composite');*/
                 this.compare_variable.setVisible(mode == 'compareRegion' || mode == 'compareCommodity' || mode == 'compareSources');
 
-                this.src.setVisible(mode == 'compareSources');
+                var outputType = this.outputType.getValue().inputValue;
+                this.src.setVisible(outputType == 'data' || mode == 'compareSources');
+
                 var regionsStrLen = this.aoiFieldSet.selectedRegions.getValue().length;
                 var srcNum = this.src.getSelections().length;
-                this.submitButton.setDisabled(mode == 'compareSources' && (srcNum <= 0 || regionsStrLen <= 0));
+                if (mode == 'compareSources'){
+                    this.submitButton.setDisabled(srcNum <= 0 || regionsStrLen <= 0);
+                }
+                //this.submitButton.setDisabled(mode == 'compareSources' && (srcNum <= 0 || regionsStrLen <= 0));
 
 				var gran_type = this.aoiFieldSet.gran_type;
                 //update button
@@ -804,15 +843,30 @@ gxp.plugins.nrl.CropData = Ext.extend(gxp.plugins.Tool, {
 
 				gran_type.eachItem(function(item){
 					if(item.inputValue === 'pakistan'){
-						item.setDisabled(mode !== 'composite');
+                        item.setDisabled(mode !== 'composite' && mode !== 'compareSources');
 						if(item.checked === true)
 							item.setValue('province');
 					}
 				},this);
 
+                if (this.submitButton.xtype == 'gxp_nrlCropDataButton'){
+                    this.optBtn.setDisabled(this.submitButton.disabled);
+                }else{
+                    this.optBtn.disable();
+                }
+
                 this.doLayout();
             },
-            buttons:[{
+            buttons:['->', {
+                iconCls:'ic_wrench',
+                ref: '../optBtn',
+                disabled: true,
+                listeners: {
+                    click: function () {
+                        this.refOwner.submitButton.chartoptions.fireEvent('click');
+                    }
+                }
+            }, {
                 url: this.dataUrl,
                 xtype: 'gxp_nrlCropDataButton',
                 typeName: this.typeNameData,
@@ -820,17 +874,16 @@ gxp.plugins.nrl.CropData = Ext.extend(gxp.plugins.Tool, {
                 target:this,
                 form: this,
                 disabled:true
-            }/*, {
-                url: this.dataUrl,
-				iconCls: 'process',
-                //xtype: 'gxp_nrlCropDataButton',
-                typeName: this.typeNameData,
-                ref: '../submitButton',
-                target:this,
-                form: this,
-                disabled:true
-            }*/]
+            }]
         };
+
+        if (this.helpPath && this.helpPath != ''){
+            cropData.buttons.unshift({
+                xtype: 'gxp_nrlHelpModuleButton',
+                portalRef: this.portalRef,
+                helpPath: this.helpPath
+            });
+        }
 
         config = Ext.apply(cropData,config || {});
 
@@ -901,12 +954,17 @@ gxp.plugins.nrl.CropData = Ext.extend(gxp.plugins.Tool, {
                     button.setDisabled(store.getCount()<=0 && gran_type != "pakistan" || sources.length <= 0);
                 }
             }else if(xTypeButton == 'gxp_nrlCropDataTabButton'){
-				button.setDisabled(store.getCount()<=0 && gran_type != "pakistan");
+				button.setDisabled(store.getCount()<=0 && gran_type != "pakistan" || sources.length <= 0);
 			}else{
                 //map xTypeButton
                 button.setDisabled(store.getCount()<=0 && gran_type == "province");
             }
 
+            if(button.xtype == 'gxp_nrlCropDataButton'){
+                this.output.optBtn.setDisabled(button.disabled);
+            }else{
+                this.output.optBtn.disable();
+            }
         },this);
 
         //hide selection layer on tab change

@@ -1520,7 +1520,7 @@ nrl.chartbuilder.crop.compareSources = {
                     },
                     title: { // 2 line title (part of issue #104 fixing)
                         useHTML: true,
-                        text: '<p>Crop Data Analysis: Comparison by Sources<br>'+ data[i].region +'</p>',
+                        text: '<p>Crop Data Analysis: Comparison by Source<br>'+ data[i].region +'</p>',
                         margin: 32
                     },
                     subtitle: {

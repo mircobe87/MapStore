@@ -156,6 +156,7 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
             minWidth: 180,
             autoScroll: true,
             frame: true,
+            buttonAlign: 'left',
             items: [{ // OUTPUT TYPE radiogroup ------------------------------
                 fieldLabel: this.outputTypeText,
                 xtype: 'radiogroup',
@@ -220,8 +221,15 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
 
                         this.output.submitButton.setDisabled(submitButtonState);
 
-                        if (outputValue != 'data')
+                        if (outputValue != 'data'){
                             this.output.submitButton.initChartOpt(this.output);
+                        }
+
+                        if(this.output.submitButton.xtype == 'gxp_nrlMarketPricesChartButton'){
+                            this.output.optBtn.setDisabled(this.output.submitButton.disabled);
+                        }else{
+                            this.output.optBtn.disable();
+                        }
                     },
                     scope: this
                 }
@@ -674,7 +682,16 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
                     }                                     //
                                                     ////////
             },
-            buttons: [{
+            buttons: ['->', {
+                iconCls:'ic_wrench',
+                ref: '../optBtn',
+                disabled: true,
+                listeners: {
+                    click: function () {
+                        this.refOwner.submitButton.chartoptions.fireEvent('click');
+                    }
+                }
+            }, {
                 url: this.dataUrl,
                 xtype: 'gxp_nrlMarketPricesChartButton',
                 typeName: this.typeNameData,
@@ -739,9 +756,23 @@ gxp.plugins.nrl.MarketPrices = Ext.extend(gxp.plugins.Tool, {
 
                 var disableBtn = (!exchangeRateOk || selectedCrops.length == 0 || gran_type != 'pakistan' && regionList.length == 0);
                 this.submitButton.setDisabled(disableBtn);
+
+                if(this.submitButton.xtype == 'gxp_nrlMarketPricesChartButton'){
+                    this.optBtn.setDisabled(this.submitButton.disabled);
+                }else{
+                    this.optBtn.disable();
+                }
             },
             outputMode: 'chart'
         };
+
+        if (this.helpPath && this.helpPath != ''){
+            MarketPrices.buttons.unshift({
+                xtype: 'gxp_nrlHelpModuleButton',
+                portalRef: this.portalRef,
+                helpPath: this.helpPath
+            });
+        }
 
         config = Ext.apply(MarketPrices, config || {});
         this.output = gxp.plugins.nrl.MarketPrices.superclass.addOutput.call(this, config);

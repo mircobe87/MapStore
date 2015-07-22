@@ -303,10 +303,19 @@
     },
     "customTools": [
         {
+            "id": "gxp_portal_staticpage",
             "ptype": "gxp_staticpage",
             "url": "http://dwms.fao.org/~test/croportal/home_en.asp",
             "tabPosition": 0,
-            "tabTitle": "Portal"
+            "tabTitle": "Portal",
+            "forceMultiple": true
+        },
+        {
+            "ptype": "gxp_staticpage",
+            "url": "http://cip-pakistan.geo-solutions.it/geonetwork",
+            "tabPosition": 10,
+            "tabTitle": "Geonetwork",
+            "forceMultiple": true
         },
         {
             "ptype": "gxp_zoomtoextent",
@@ -399,7 +408,9 @@
             "outputConfig": {
                 "itemId": "nrlCropData"
             },
-            "outputTarget": "nrl"
+            "outputTarget": "nrl",
+            "portalRef": "gxp_portal_staticpage",
+            "helpPath": "/test/help/cropdata/path"
         },
         {
             "ptype": "nrl_agromet",
@@ -421,7 +432,9 @@
             "layers": {
                 "district": "nrl:district_select",
                 "province": "nrl:province_view"
-            }
+            },
+            "portalRef": "gxp_portal_staticpage",
+            "helpPath": "/test/help/agromet/path"
         },
         {
             "ptype": "nrl_fertilizers",
@@ -444,7 +457,9 @@
             "layers": {
                 "district": "nrl:district_select",
                 "province": "nrl:province_view"
-            }
+            },
+            "portalRef": "gxp_portal_staticpage",
+            "helpPath": "/test/help/fertilizer/path"
         },{
             "ptype": "nrl_irrigation",
             "layerStyle": {
@@ -469,8 +484,9 @@
                 "province": "nrl:province_view",
                 "district": "nrl:district_select"
             },
-            "areaFilter": "province NOT IN ('DISPUTED TERRITORY','DISPUTED AREA')"
-
+            "areaFilter": "province NOT IN ('DISPUTED TERRITORY','DISPUTED AREA')",
+            "portalRef": "gxp_portal_staticpage",
+            "helpPath": "/test/help/irrigation/path"
         },
         {
             "ptype": "nrl_market_prices",
@@ -505,7 +521,9 @@
                 "province": "nrl:province_view",
                 "district": "nrl:district_select"
             },
-            "areaFilter": "province NOT IN ('DISPUTED TERRITORY','DISPUTED AREA')"
+            "areaFilter": "province NOT IN ('DISPUTED TERRITORY','DISPUTED AREA')",
+            "portalRef": "gxp_portal_staticpage",
+            "helpPath": "/test/help/market_prices/path"
         },
         {
             "ptype": "nrl_crop_status",
@@ -522,7 +540,9 @@
             "outputConfig": {
                 "id": "nrlCropStatus"
             },
-            "outputTarget": "nrl"
+            "outputTarget": "nrl",
+            "portalRef": "gxp_portal_staticpage",
+            "helpPath": "/test/help/crop_status/path"
         },
         {
             "ptype": "nrl_report_crop_data",
@@ -547,7 +567,9 @@
             "defaultAreaTypeMap": "district",
             "disclaimerText": "Disclaimer: Data, information and products in this report are provided \"as is\", without warranty of any kind, either express or implied. All rights are reserved by the Government of Pakistan",
             "areaFilter": "province NOT IN ('GILGIT BALTISTAN','AJK','DISPUTED TERRITORY','DISPUTED AREA')",
-            "outputTarget": "nrl"
+            "outputTarget": "nrl",
+            "portalRef": "gxp_portal_staticpage",
+            "helpPath": "/test/help/crop_report/path"
         },
         {
             "ptype": "gxp_printreporthelper",

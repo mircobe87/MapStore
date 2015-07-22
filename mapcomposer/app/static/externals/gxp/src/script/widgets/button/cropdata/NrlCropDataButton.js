@@ -97,7 +97,7 @@ gxp.widgets.button.NrlCropDataButton = Ext.extend(Ext.SplitButton, {
                         }
                     }
                 }]
-        }
+        };
         return fieldSet;
     },
     createStackChartsOptions: function(stackedCharts, cmpVar){
@@ -403,6 +403,7 @@ gxp.widgets.button.NrlCropDataButton = Ext.extend(Ext.SplitButton, {
 			}
 		}
 
+        this.optionsCompareSources = this.optionsCompareSources || {};
         this.optionsCompareSources.uomLabel  = this.chartOpt.series[this.variableCompare];
         this.optionsCompareSources.today     = today;
         this.optionsCompareSources.season    = season;

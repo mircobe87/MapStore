@@ -312,7 +312,7 @@ mxp.widgets.GeoBatchCSVIngestionRunForm = Ext.extend(Ext.Panel, {
                     fieldLabel: 'Source',
                     ref: 'src',
                     isValid: function(){
-                        return this.getValue() != '';
+                        return this.getRawValue() != '';
                     },
                     anchor: '100%',
                     triggerAction: 'all',
@@ -333,6 +333,9 @@ mxp.widgets.GeoBatchCSVIngestionRunForm = Ext.extend(Ext.Panel, {
                     }),
                     listeners: {
                         'select': function(combo){
+                            this.refOwner.refOwner.refOwner.allowRun();
+                        },
+                        'keyup': function(combo){
                             this.refOwner.refOwner.refOwner.allowRun();
                         }
                     }

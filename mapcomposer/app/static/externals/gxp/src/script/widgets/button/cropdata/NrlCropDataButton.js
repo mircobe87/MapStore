@@ -200,6 +200,7 @@ gxp.widgets.button.NrlCropDataButton = Ext.extend(Ext.SplitButton, {
                         fieldSetList.push(mainButton.createOptionsFildset(source,optionsCompare.series[source],source));
                     }
                     //fieldSetList.push(mainButton.createStackChartsOptions(stackedCharts, data.compare_variable));
+                    stackedCharts.series.stacking = null; // <-- avoid stacking for yield if previously selected for other variables.
                 }
                 var win = new Ext.Window({
                     iconCls:'ic_wrench',

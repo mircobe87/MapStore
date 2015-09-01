@@ -1382,6 +1382,10 @@ nrl.chartbuilder.crop.compareCommodity = {
 
 nrl.chartbuilder.crop.compareSources = {
     getData: function(jsonData, variable, aoiStore){
+        // useful data structure to compute yield mean for pakistan.
+        var weightsMap = {};
+        var totalsMap = {};
+
         var getRegionValue = function(grantype, store, qParam){
             var item = store.queryBy(function(r){
                 return r.data.attributes[grantype] == qParam;
@@ -1389,12 +1393,12 @@ nrl.chartbuilder.crop.compareSources = {
             if(grantype == 'district'){
                 return item.data.attributes.district + ' (' + item.data.attributes.province + ')';
             }else{
-                return item.data.attributes.province;
+                return item ? item.data.attributes.province : qParam;
             }
         };
 
         var grantype = undefined;
-        if(aoiStore.data.items[0].data.attributes.district){
+        if(aoiStore.data.items.length > 0 && aoiStore.data.items[0].data.attributes.district){
             grantype = 'district';
         }else{
             grantype = 'province';
@@ -1438,6 +1442,76 @@ nrl.chartbuilder.crop.compareSources = {
                 row = chartData.rows[timeToRowIndex[x]];
             }
             row[src] = value;
+
+            // stores the weights to compute correct value for pakistan yield.
+            if (weightsMap[properties.year] == undefined) {
+                weightsMap[properties.year] = {};
+            }
+            if (weightsMap[properties.year][chartData.region] == undefined){
+                weightsMap[properties.year][chartData.region] = {}
+            }
+            weightsMap[properties.year][chartData.region][src] = properties.area;
+        }
+
+        for (var y in weightsMap) {
+            if (weightsMap.hasOwnProperty(y)) {
+                for (var r in weightsMap[y]) {
+                    if (weightsMap[y].hasOwnProperty(r)) {
+                        for (var s in weightsMap[y][r]) {
+                            if (weightsMap[y][r].hasOwnProperty(s)) {
+                                if (totalsMap[y] == undefined) {
+                                    totalsMap[y] = {};
+                                }
+                                totalsMap[y][s] = weightsMap[y][r][s] + (totalsMap[y][s] != undefined ? totalsMap[y][s] : 0);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        var getFactorForAverage = function(variable, time, region, src) {
+            if (variable != 'yield') {
+                return 1;
+            }
+            return weightsMap[time][region][src] / totalsMap[time][src];
+        };
+
+        if (aoiStore.data.items.length == 0) {
+            var aggrData = {
+                region: 'Pakistan',
+                rows: [],
+                timeToRowIndex: {},
+                variable: variable
+            };
+            for (var i=0; i<data.length; i++) {
+                for (var r=0; r<data[i].rows.length; r++) {
+                    var item = data[i].rows[r];
+
+                    var dataEntry = undefined;
+
+                    var dataEntryIndex = undefined;
+                    dataEntryIndex = aggrData.timeToRowIndex[item.time];
+
+                    if (dataEntryIndex == undefined) {
+                        dataEntry = {
+                            time: item.time
+                        };
+                        aggrData.rows.push(dataEntry);
+                        aggrData.timeToRowIndex[item.time] = aggrData.rows.length - 1;
+                    } else {
+                        dataEntry = aggrData.rows[dataEntryIndex];
+                    }
+
+                    for (var p in item) {
+                        if (item.hasOwnProperty(p) && p != 'time'){
+                            var avgFactor = getFactorForAverage(variable, item.time, data[i].region, p);
+                            dataEntry[p] = avgFactor * item[p] + (dataEntry[p] ? dataEntry[p] : 0);
+                        }
+                    }
+                }
+            }
+            return [aggrData];
         }
         return data;
     },

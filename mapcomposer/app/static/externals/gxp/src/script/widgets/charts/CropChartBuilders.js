@@ -1477,9 +1477,10 @@ nrl.chartbuilder.crop.compareSources = {
             return weightsMap[time][region][src] / totalsMap[time][src];
         };
 
-        if (aoiStore.data.items.length == 0) {
+        var aggregatedData;
+        if (aoiStore.data.items.length != 1) {
             var aggrData = {
-                region: 'Pakistan',
+                region: (aoiStore.data.items.length == 0 ? 'Pakistan' : 'Region'),
                 rows: [],
                 timeToRowIndex: {},
                 variable: variable
@@ -1511,7 +1512,12 @@ nrl.chartbuilder.crop.compareSources = {
                     }
                 }
             }
-            return [aggrData];
+            aggregatedData = aggrData;
+        }
+        if (aoiStore.data.items.length == 0) {
+            return [aggregatedData];
+        } else {
+            data.push(aggregatedData);
         }
         return data;
     },

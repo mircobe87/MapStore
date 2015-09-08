@@ -459,7 +459,7 @@
                 "province": "nrl:province_view"
             },
             "portalRef": "gxp_portal_staticpage",
-            "helpPath": "/~test/croportal/hlp_fertil_en.asp"
+            "helpPath": "/~test/croportal/hlp_fertilizer_en.asp"
         },{
             "ptype": "nrl_irrigation",
             "layerStyle": {

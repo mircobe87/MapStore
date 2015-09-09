@@ -539,7 +539,15 @@ gxp.plugins.nrl.AgroMet = Ext.extend(gxp.plugins.Tool, {
                 highChartExportUrl: this.highChartExportUrl,
                 target:this.target,
 				form: this,
-                disabled:true
+                disabled:true,
+                listeners: {
+                    disable: function() {
+                        this.refOwner.optBtn.disable();
+                    },
+                    enable: function() {
+                        this.refOwner.optBtn.enable();
+                    }
+                }
             }]
 		};
 

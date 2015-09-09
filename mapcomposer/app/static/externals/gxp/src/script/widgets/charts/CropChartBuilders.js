@@ -423,7 +423,7 @@ nrl.chartbuilder.crop.composite = {
 					text += 'Crop Data Analysis: Composite - ' + chartTitle;
 				}
 			}
-			text += (customOpt.compositeMode != 'abs' ? '<br /><span style="font-size: 12px;">' + commodity + ' Anomalies '+ listVar.toYear + ' - (' + listVar.fromYear + "-"+ listVar.toYear + ')</span>' : '<br />' + commodity);
+			text += (customOpt.compositeMode != 'abs' ? '<br /><span style="font-size: 12px;">' + nrl.chartbuilder.util.toTitleCase(commodity) + ' YEAR '+ listVar.toYear + ' - (average ' + listVar.fromYear + "-"+ listVar.toYear + ')</span>' : '<br />' + commodity);
 
 			//
 			// AOI Subtitle customization
@@ -496,8 +496,9 @@ nrl.chartbuilder.crop.composite = {
                             var s = '<b>'+ this.x +'</b>';
 
                             Ext.each(this.points, function(i, point) {
+                                var percentageStr = i.percentage != undefined ? (' (' + i.percentage.toFixed(2) + '%)') : '';
                                 s += '<br/><span style="color:'+i.series.color+'">'+ i.series.name +': </span>'+
-                                    '<span style="font-size:12px;">'+ i.y+'</span>';
+                                     '<span style="font-size:12px;">'+ i.y + percentageStr + '</span>';
                             });
 
                             return s;
@@ -748,8 +749,9 @@ nrl.chartbuilder.crop.compareRegion = {
                             var s = '<b>'+ this.x +'</b>';
 
                             Ext.each(this.points, function(i, point) {
+                                var percentageStr = i.percentage != undefined ? (' (' + i.percentage.toFixed(2) + '%)') : '';
                                 s += '<br/><span style="color:'+i.series.color+'">'+ i.series.name +': </span>'+
-                                    '<span style="font-size:12px;">'+ i.y+'</span>';
+                                    '<span style="font-size:12px;">'+ i.y + percentageStr + '</span>';
                             });
 
                             return s;
@@ -1316,8 +1318,9 @@ nrl.chartbuilder.crop.compareCommodity = {
                             var s = '<b>'+ this.x +'</b>';
 
                             Ext.each(this.points, function(i, point) {
+                                var percentageStr = i.percentage != undefined ? (' (' + i.percentage.toFixed(2) + '%)') : '';
                                 s += '<br/><span style="color:'+i.series.color+'">'+ i.series.name +': </span>'+
-                                    '<span style="font-size:12px;">'+ i.y.toFixed(2)+'</span>';
+                                    '<span style="font-size:12px;">'+ i.y.toFixed(2) + percentageStr + '</span>';
                             });
 
                             return s;
@@ -1630,8 +1633,9 @@ nrl.chartbuilder.crop.compareSources = {
                             var s = '<b>'+ this.x +'</b>';
 
                             Ext.each(this.points, function(i, point) {
+                                var percentageStr = i.percentage != undefined ? (' (' + i.percentage.toFixed(2) + '%)') : '';
                                 s += '<br/><span style="color:'+i.series.color+'">'+ i.series.name +': </span>'+
-                                     '<span style="font-size:12px;">'+ (i.y != undefined ? i.y.toFixed(2) : 'n/a') +'</span>';
+                                     '<span style="font-size:12px;">'+ (i.y != undefined ? i.y.toFixed(2) : 'n/a') + percentageStr + '</span>';
                             });
                             return s;
                         },

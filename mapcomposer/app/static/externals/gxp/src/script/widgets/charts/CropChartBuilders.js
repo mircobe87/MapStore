@@ -359,6 +359,7 @@ nrl.chartbuilder.crop.composite = {
 				chartConfig.yAxis[yAxisDataIdIndexMap[item]].min = -maximums[item];
 			}
 		};
+        var chartTitleList = listVar.chartTitle.split(/\s?[,]\s?/i).sort();
 		for (var r=0; r<data.length; r++){
             //calculate avg
             var prodavg = getAvg(data[r].rows,'prod');
@@ -409,7 +410,7 @@ nrl.chartbuilder.crop.composite = {
 			var dataTitle = data[r].title.toUpperCase();
 			var commodity = listVar.commodity.toUpperCase().replace(/[']/g,'');
 
-			var chartTitle = listVar.chartTitle.split(',')[r];
+			var chartTitle = chartTitleList[r];
 
 			if(dataTitle){
 				if(dataTitle == "AGGREGATED DATA"){
@@ -423,7 +424,7 @@ nrl.chartbuilder.crop.composite = {
 					text += 'Crop Data Analysis: Composite - ' + chartTitle;
 				}
 			}
-			text += (customOpt.compositeMode != 'abs' ? '<br /><span style="font-size: 12px;">' + nrl.chartbuilder.util.toTitleCase(commodity) + ' YEAR '+ listVar.toYear + ' - (average ' + listVar.fromYear + "-"+ listVar.toYear + ')</span>' : '<br />' + commodity);
+			text += (customOpt.compositeMode != 'abs' ? '<br /><span style="font-size: 12px;">' + nrl.chartbuilder.util.toTitleCase(commodity) + ' ' + listVar.toYear + ' - (average ' + listVar.fromYear + "-"+ listVar.toYear + ')</span>' : '<br />' + commodity);
 
 			//
 			// AOI Subtitle customization

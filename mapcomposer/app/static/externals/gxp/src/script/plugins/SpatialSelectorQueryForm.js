@@ -503,6 +503,9 @@ gxp.plugins.SpatialSelectorQueryForm = Ext.extend(gxp.plugins.QueryForm, {
             var autoComplete = rec && me.autoComplete && me.autoComplete.sources && me.autoComplete.sources.indexOf(rec.get('source')) !== -1;
             queryForm.attributeFieldset.removeAll();
             queryForm.setDisabled(!schema);
+            if (rec && rec.data.group != 'background' && !schema && rec.owsType == "WFS") {
+                queryForm.getEl().mask(mgr.noValidWmsVersionMsgText + rec.get('layer').params.VERSION);
+            }
 
             if (schema) {
                 var autoCompleteCfg = me.autoComplete || {};

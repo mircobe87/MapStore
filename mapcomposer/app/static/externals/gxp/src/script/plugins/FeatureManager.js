@@ -801,7 +801,7 @@ gxp.plugins.FeatureManager = Ext.extend(gxp.plugins.Tool, {
         if (lonLatOk && page.numFeatures && page.numFeatures <= this.maxFeatures) {
             // nothing to do, leaf is a valid page
             callback.call(this, page);
-        } else if (lonLatOk && (i == index || nextOk)) {
+        } else if (i == index || nextOk) {
             // get the hit count if the page is relevant for the requested index
             this.hitCountProtocol.read({
                 callback: function(response) {

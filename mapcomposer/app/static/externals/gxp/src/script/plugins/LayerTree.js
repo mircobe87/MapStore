@@ -248,12 +248,13 @@ gxp.plugins.LayerTree = Ext.extend(gxp.plugins.Tool, {
                                 if (record.get("fixed")) {
                                     attr.allowDrag = false;
                                 }
-                                if (typeof record.get('title') != "string") {
+
+                                var titles = record.get('title');
+                                if (titles && typeof titles != "string") {
                                     /*
                                      * If the language is not supported, the layer name
                                      * is the first contained in titles
                                      **/
-                                    var titles = record.get('title');
                                     if(titles.length > 0){
                                         var layerTitle = (titles[locIndex] ? titles[locIndex] : titles[0]);
                                         record.set('title', layerTitle);

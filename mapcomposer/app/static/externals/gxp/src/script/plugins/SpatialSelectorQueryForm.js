@@ -319,17 +319,11 @@ gxp.plugins.SpatialSelectorQueryForm = Ext.extend(gxp.plugins.QueryForm, {
                 }
                 //END
 
-                if (queryForm.spatialSelectorFieldset) {
+                if(queryForm.spatialSelectorFieldset && !queryForm.spatialSelectorFieldset.collapsed){
                     var currentFilter = this.spatialSelector.getQueryFilter();
                     if (currentFilter) {
-                        if (queryForm.spatialSelectorFieldset.collapsed) {
-                            currentFilter.value = this.target.mapPanel.map.getMaxExtent();
-                        }
-                        if (this.queryAll) {
-                            filters.push(currentFilter);
-                        }
+                        filters.push(currentFilter);
                     }
-
                 }
 
                 if(queryForm.filterBuilder && !queryForm.filterBuilder.collapsed){
@@ -390,7 +384,7 @@ gxp.plugins.SpatialSelectorQueryForm = Ext.extend(gxp.plugins.QueryForm, {
                 }
 
                 if(invalidItems == 0){
-                    if(filters.length > 0){
+                    if(this.queryAll || filters.length > 0){
                         if(pluginFilter){
                             filters.push(pluginFilter);
                         }
@@ -610,22 +604,24 @@ gxp.plugins.SpatialSelectorQueryForm = Ext.extend(gxp.plugins.QueryForm, {
 
         this.featureManagerTool.on({
             "layerchange": function() {
-                this.featureManagerTool.featureStore.on({
-                    "exception": function(proxy, params, response) {
-                        if (response && response instanceof OpenLayers.Protocol.Response) {
-                            me.exceptionCallback(response.error);
+                if (this.featureManagerTool.featureStore) {
+                    this.featureManagerTool.featureStore.on({
+                        "exception": function(proxy, params, response) {
+                            if (response && response instanceof OpenLayers.Protocol.Response) {
+                                me.exceptionCallback(response.error);
+                            }
+                        },
+                        "loadexception": function() {
+                            // convert deprecated "loadexception" event in "exception" event,
+                            // which is necessary to unmask the query panel in case of error
+                            var relayedArguments = ["exception"];
+                            for (var i=0; i<arguments.length; i++) {
+                                relayedArguments.push(arguments[i]);
+                            }
+                            this.fireEvent.apply(this, relayedArguments);
                         }
-                    },
-                    "loadexception": function() {
-                        // convert deprecated "loadexception" event in "exception" event,
-                        // which is necessary to unmask the query panel in case of error
-                        var relayedArguments = ["exception"];
-                        for (var i=0; i<arguments.length; i++) {
-                            relayedArguments.push(arguments[i]);
-                        }
-                        this.fireEvent.apply(this, relayedArguments);
-                    }
-                });
+                    });
+                }
             },
             scope: this
         });
